@@ -41,30 +41,7 @@ PORT=8080
 
 ### Ejecución Dockerfile
 ```shell
------------PENDIENTE-----------------------
-# Implementado para despliegue del Sistema de integración continua CI.
-```
-
-### Ejecución docker-compose
-```shell
------------PENDIENTE-----------------------
-#1. Clonar el repositorio
-git clone -b develop https://github.com/udistrital/plan_adquisiciones_mid
-
-#2. Moverse a la carpeta del repositorio
-cd solicitudes_crud
-
-#3. Crear un fichero con el nombre **custom.env**
-touch .env
-
-#4. Crear la network **back_end** para los contenedores
-docker network create back_end
-
-#5. Ejecutar el compose del contenedor
-docker-compose up --build
-
-#6. Comprobar que los contenedores estén en ejecución
-docker ps
+# No aplica.
 ```
 
 ### Apis Requeridas
