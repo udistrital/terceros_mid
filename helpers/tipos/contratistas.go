@@ -1,4 +1,4 @@
-package tercerosHelper
+package tipos
 
 import (
 	"fmt"
@@ -7,10 +7,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/mitchellh/mapstructure"
-
-	// "github.com/udistrital/arka_mid/helpers/utilsHelper"
-	// "github.com/udistrital/arka_mid/helpers/autenticacion"
-	"github.com/udistrital/arka_mid/models"
+	"github.com/udistrital/terceros_mid/models"
 	"github.com/udistrital/utils_oas/request"
 )
 

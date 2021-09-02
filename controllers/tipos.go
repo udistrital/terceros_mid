@@ -6,53 +6,19 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/udistrital/arka_mid/helpers/tercerosHelper"
+	"github.com/udistrital/terceros_mid/helpers/tipos"
 )
 
 // TercerosController operations for Terceros
-type TercerosController struct {
+type TiposController struct {
 	beego.Controller
 }
 
 // URLMapping ...
-func (c *TercerosController) URLMapping() {
-	c.Mapping("GetOne", c.GetOne)
+func (c *TiposController) URLMapping() {
 	c.Mapping("GetByTipo", c.GetByTipo)
 	c.Mapping("GetTipos", c.GetTipos)
 	c.Mapping("GetByTipoAndId", c.GetByTipoAndID)
-}
-
-// GetOne ...
-// @Title GetOne
-// @Description get Terceros by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Terceros
-// @Failure 403 :id is empty
-// @router /:id [get]
-func (c *TercerosController) GetOne() {
-
-	defer func() {
-		if err := recover(); err != nil {
-			logs.Error(err)
-			localError := err.(map[string]interface{})
-			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "TercerosController" + "/" + (localError["funcion"]).(string))
-			c.Data["data"] = (localError["err"])
-			if status, ok := localError["status"]; ok {
-				c.Abort(status.(string))
-			} else {
-				c.Abort("500")
-			}
-		}
-	}()
-
-	idStr := c.Ctx.Input.Param(":id")
-
-	if v, err := tercerosHelper.GetNombreTerceroById(idStr); err != nil {
-		panic(err)
-	} else {
-		c.Data["json"] = v
-	}
-	c.ServeJSON()
 }
 
 // GetAll ...
@@ -69,7 +35,6 @@ func (c *TercerosController) GetOne() {
 // @router / [get]
 /*
 func (c *TercerosController) GetAll() {
-
 }
 */
 
@@ -77,8 +42,8 @@ func (c *TercerosController) GetAll() {
 // @Title GetAll
 // @Description List the Tercero types that can be used to gather Terceros by {tipo}
 // @Success 200 {object} []string
-// @router /tipo/ [get]
-func (c *TercerosController) GetTipos() {
+// @router / [get]
+func (c *TiposController) GetTipos() {
 
 	// Puede que ni sea necesario en este controlador, pero se coloca por lineamiento...
 	defer func() {
@@ -95,7 +60,7 @@ func (c *TercerosController) GetTipos() {
 		}
 	}()
 
-	if v, err := tercerosHelper.GetTipos(); err == nil {
+	if v, err := tipos.GetTipos(); err == nil {
 		c.Data["json"] = v
 		c.ServeJSON()
 	} else {
@@ -111,8 +76,8 @@ func (c *TercerosController) GetTipos() {
 // @Failure 500 Internal Error
 // @Failure 501 {tipo} Not Implemented
 // @Failure 502 Error with external API
-// @router /tipo/:tipo [get]
-func (c *TercerosController) GetByTipo() {
+// @router /:tipo [get]
+func (c *TiposController) GetByTipo() {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -130,7 +95,7 @@ func (c *TercerosController) GetByTipo() {
 
 	tipo := c.Ctx.Input.Param(":tipo")
 
-	if helper, err := tercerosHelper.GetHelperTipo(tipo); err == nil {
+	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
 		if v, err := helper(0); err == nil {
 			c.Data["json"] = v
 		} else {
@@ -153,8 +118,8 @@ func (c *TercerosController) GetByTipo() {
 // @Failure 500 Internal Error
 // @Failure 501 {tipo} Not Implemented
 // @Failure 502 Error with external API
-// @router /tipo/:tipo/:id [get]
-func (c *TercerosController) GetByTipoAndID() {
+// @router /:tipo/:id [get]
+func (c *TiposController) GetByTipoAndID() {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -187,7 +152,7 @@ func (c *TercerosController) GetByTipoAndID() {
 		})
 	}
 
-	if helper, err := tercerosHelper.GetHelperTipo(tipo); err == nil {
+	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
 		if v, err := helper(id); err == nil {
 			if len(v) == 0 {
 				err := fmt.Errorf("no se encontró un Tercero tipo '%s' con id '%d'", tipo, id)
@@ -206,30 +171,3 @@ func (c *TercerosController) GetByTipoAndID() {
 	}
 	c.ServeJSON()
 }
-
-// Put ...
-// @Title Put
-// @Description update the Terceros
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Terceros	true		"body for Terceros content"
-// @Success 200 {object} models.Terceros
-// @Failure 403 :id is not int
-// @router /:id [put]
-/*
-func (c *TercerosController) Put() {
-
-}
-*/
-
-// Delete ...
-// @Title Delete
-// @Description delete the Terceros
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-/*
-func (c *TercerosController) Delete() {
-
-}
-*/

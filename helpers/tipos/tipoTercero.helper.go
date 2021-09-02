@@ -1,4 +1,4 @@
-package tercerosHelper
+package tipos
 
 import (
 	"fmt"
