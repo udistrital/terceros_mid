@@ -1,0 +1,95 @@
+swagger: "2.0"
+info:
+  title: beego Test API
+  description: beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: astaxie@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /tipo/:
+    get:
+      tags:
+      - tipo
+      description: List the Tercero types that can be used to gather Terceros by {tipo}
+      operationId: TiposController.GetAll
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: array
+            items:
+              type: string
+  /tipo/{tipo}:
+    get:
+      tags:
+      - tipo
+      description: get Terceros with the specified {tipo}
+      operationId: TiposController.GetAll
+      parameters:
+      - in: path
+        name: tipo
+        description: Tercero type available from /tipo/
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/map[string]interface{}'
+        "500":
+          description: Internal Error
+        "501":
+          description: '{tipo} Not Implemented'
+        "502":
+          description: Error with external API
+  /tipo/{tipo}/{id}:
+    get:
+      tags:
+      - tipo
+      description: get Terceros with the specified {tipo} and {id} of a record in
+        terceros table from Terceros CRUD API
+      operationId: TiposController.GetAll
+      parameters:
+      - in: path
+        name: tipo
+        description: Tercero type available from /tipo/
+        required: true
+        type: string
+      - in: path
+        name: id
+        description: ID. MUST be greater than 0
+        required: true
+        type: integer
+        format: int32
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/map[string]interface{}'
+        "400":
+          description: Wrong ID
+        "404":
+          description: ID with {tipo} Not Found
+        "500":
+          description: Internal Error
+        "501":
+          description: '{tipo} Not Implemented'
+        "502":
+          description: Error with external API
+definitions:
+  map[string]interface{}:
+    title: map[string]interface{}
+    type: object
+tags:
+- name: tipo
+  description: |
+    TercerosController operations for Terceros
