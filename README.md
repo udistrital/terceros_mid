@@ -59,7 +59,7 @@ Pruebas unitarias
 ## Estado CI
 | Develop | Release  | Master |
 | -- | -- | -- |
-| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/release/0.0.1)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) |
+| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/release/0.0.1)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/master)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) |
 
 
 ## Licencia
