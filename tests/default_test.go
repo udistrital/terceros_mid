@@ -5,8 +5,9 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"runtime"
-	_ "terceros_mid/routers"
 	"testing"
+
+	_ "github.com/udistrital/terceros_mid/routers"
 
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
