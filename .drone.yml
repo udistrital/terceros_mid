@@ -35,6 +35,9 @@ steps:
     event:
     - push
 
+# STEP comentado/desactivado por no ser objetivo
+# Para más información:
+# https://github.com/udistrital/arka_cliente/commit/37e3ece10d52cae1303d837ad0e8a6ca1fb7a549
 # - name: check_commits
 #   image: jjvargass/qa_develoment:latest
 #   failure: ignore
