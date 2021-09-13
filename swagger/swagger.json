@@ -15,6 +15,71 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/propiedad/": {
+            "get": {
+                "tags": [
+                    "propiedad"
+                ],
+                "description": "List the Propiedades types that can be used to gather Propiedades by {propiedad}",
+                "operationId": "PropiedadesController.GetAll",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/propiedad/{propiedad}/{idTercero}": {
+            "get": {
+                "tags": [
+                    "propiedad"
+                ],
+                "description": "get Dependencia with the specified {idTercero}",
+                "operationId": "PropiedadesController.GetAll",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "propiedad",
+                        "description": "type propiedad of Terceros",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "idTercero",
+                        "description": "Identify Dependencia by IdTercero",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/map[string]interface{}"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    },
+                    "501": {
+                        "description": "{user} Not Implemented"
+                    },
+                    "502": {
+                        "description": "Error with external API"
+                    }
+                }
+            }
+        },
         "/tipo/": {
             "get": {
                 "tags": [
@@ -136,6 +201,10 @@
         {
             "name": "tipo",
             "description": "TercerosController operations for Terceros\n"
+        },
+        {
+            "name": "propiedad",
+            "description": "PropiedadesController operations for propiedades\n"
         }
     ]
 }
