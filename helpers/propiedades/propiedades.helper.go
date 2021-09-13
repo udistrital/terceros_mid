@@ -17,7 +17,7 @@ func GetPropiedades() (propiedad []string, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
-				"funcion": "GetTipos - Unhandled Error!",
+				"funcion": "GetPropiedades - Unhandled Error!",
 				"err":     err,
 				"status":  "500", // Error no manejado!
 			}
@@ -38,7 +38,7 @@ func GetHelperPropiedades(propiedad string) (helper func(string) ([]map[string]i
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
-				"funcion": "GetHelperTipo - Unhandled Error!",
+				"funcion": "GetHelperPropiedades - Unhandled Error!",
 				"err":     err,
 				"status":  "500", // Error no manejado!
 			}
@@ -54,7 +54,7 @@ func GetHelperPropiedades(propiedad string) (helper func(string) ([]map[string]i
 	logs.Error(err)
 
 	return nil, map[string]interface{}{
-		"funcion": "GetHelperTipo - found := diccionarioTipoHelper[tipo]",
+		"funcion": "GetHelperPropiedades - found := diccionarioPropiedadesHelper[propiedad]",
 		"err":     err,
 		"status":  "404",
 	}

@@ -19,48 +19,8 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 			panic(outputError)
 		}
 	}()
-	// PARTE 1. Consultar el Id del tercero con el tipo de documento y documento
 
-	// Document es el numero de documento con el que se consultara el terero.
-	// Tipo es el valor del tipo de documento para filtar el documento con su tipo,
-	// para evitar errores de documentos duplicados con diferentes tipos.
-
-	// Esto nos devolvera el id del tercero asociado para consultar las dependencias luego.
-	//var idTercero []map[string]interface{}
-	//var tercero models.Tercero
-	//urlTercero := "http://" + beego.AppConfig.String("tercerosService") + "datos_identificacion?limit=-1"
-	//urlTercero += "&fields=TerceroId"
-	//urlTercero += "&query=TipoDocumentoId__CodigoAbreviacion%3A" + tipo + "%2CNumero%3A" + document
-	//if resp, err := request.GetJsonTest(urlTercero, &idTercero); err == nil && resp.StatusCode == 200 {
-	//	if len(idTercero) == 0 || len(idTercero[0]) == 0 {
-	//		err := fmt.Errorf("No hay terceros registrados con el documento " + document)
-	//		logs.Error(err)
-	//		outputError = map[string]interface{}{
-	//			"funcion": "GetDependencia - request.GetJsonTest(urlTercero, &idTercero)",
-	//			"err":     err,
-	//			"status":  "502",
-	//		}
-	//		return nil, outputError
-	//	}
-	//	jsonString, _ := json.Marshal(idTercero[0]["TerceroId"])
-	//	bytes := []byte(jsonString)
-	//	json.Unmarshal(bytes, &tercero)
-	//	if err != nil {
-	//		log.Println(err)
-	//	}
-	//} else {
-	//	if err == nil {
-	//		err = fmt.Errorf("Undesired status code - Got:%d", resp.StatusCode)
-	//	}
-	//	logs.Error(err)
-	//	outputError = map[string]interface{}{
-	//		"funcion": "GetDependencia - request.GetJsonTest(urlTercero, &idTercero)",
-	//		"err":     err,
-	//		"status":  "502",
-	//	}
-	//	return nil, outputError
-	//}
-	// PARTE 2. Consultar el tercero con el Id del paso anterior
+	// PARTE 1. Consultar el tercero con el Id
 	// Se obtendra la dependencia que estan relacionados al tercero
 	var idDependencia []map[string]interface{}
 	urlDependencia := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=-1"
@@ -89,7 +49,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 		}
 		return nil, outputError
 	}
-	// PARTE 3. Consultar las dependencias a partir del id identificada en vinculacion
+	// PARTE 2. Consultar las dependencias a partir del id identificada en vinculacion
 	// Se obtendra las dependencia que estan relacionados al tercero por medio del id
 	// del tercero y se adjuntaran a un array que sera la respuesta que se devolvera
 
