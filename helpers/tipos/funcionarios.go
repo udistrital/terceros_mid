@@ -9,13 +9,13 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-// GetAllFuncionariosPlanta trae los funcionarios de planta
-func GetAllFuncionarios(idTercero int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+// GetFuncionarios trae los terceros que tienen un registro en la tabla vinculacion del api terceros_crud
+func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
 
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
-				"funcion": "GetAllFuncionarios - Uncaught Error!",
+				"funcion": "GetFuncionarios - Uncaught Error!",
 				"err":     err,
 				"status":  "500", // Error no manejado!
 			}
@@ -61,7 +61,7 @@ func GetAllFuncionarios(idTercero int) (terceros []map[string]interface{}, outpu
 		}
 		logs.Error(err)
 		outputError = map[string]interface{}{
-			"funcion": "/GetFuncionariosPlanta - request.GetJsonTest(urlTerceros, &vinculaciones)",
+			"funcion": "/GetFuncionarios - request.GetJsonTest(urlTerceros, &vinculaciones)",
 			"err":     err,
 			"status":  "502",
 		}
@@ -106,7 +106,7 @@ func GetAllFuncionarios(idTercero int) (terceros []map[string]interface{}, outpu
 				}
 				logs.Error(err)
 				outputError = map[string]interface{}{
-					"funcion": "/GetFuncionariosPlanta - request.GetJsonTest(urlOikos, &resBody)",
+					"funcion": "/GetFuncionarios - request.GetJsonTest(urlOikos, &resBody)",
 					"err":     err,
 					"status":  "502",
 				}
