@@ -5,6 +5,8 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/mitchellh/mapstructure"
+	"github.com/udistrital/terceros_mid/helpers/propiedades"
 	"github.com/udistrital/terceros_mid/models"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -76,6 +78,31 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 		// fmt.Println("k:", k, "tercero:", tercero)
 
 		// 3.1 traer los registros necesarios/disponibles
+		var terceroModelo models.Tercero
+		if err := mapstructure.Decode(tercero["TerceroPrincipal"], &terceroModelo); err != nil {
+			logs.Error(err)
+			outputError = map[string]interface{}{
+				"funcion": "GetContratista - mapstructure.Decode(tercero[\"Tercero\"], &terceroModelo)",
+				"err":     err,
+				"status":  "500",
+			}
+			return nil, outputError
+		} else {
+			if identificacion, err := propiedades.GetDocumento(fmt.Sprint(terceroModelo.Id)); err != nil && len(identificacion) > 0 {
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "GetContratista - mapstructure.Decode(tercero[\"Tercero\"], &terceroModelo)",
+					"err":     err,
+					"status":  "500",
+				}
+				return nil, outputError
+			} else {
+				if len(identificacion) > 0 {
+					tercero["Identificacion"] = identificacion[0]
+				}
+			}
+		}
+
 		consultar := true
 		for _, seDependencia := range sedesDependencias {
 			if seDependencia.DependenciaId.Id == tercero["Dependencia"] {
