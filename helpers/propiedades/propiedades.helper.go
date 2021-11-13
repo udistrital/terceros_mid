@@ -8,6 +8,7 @@ import (
 
 var diccionarioPropiedadesHelper = map[string](func(string) ([]map[string]interface{}, map[string]interface{})){
 	"dependencia": GetDependencia,
+	"documento":   GetDocumento,
 }
 
 // GetPropiedades retorna la lista de propiedades que pueden ser usados con GetHelperPropiedades
