@@ -44,16 +44,16 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 		for _, vincul := range vinculaciones {
 			add := true
 			for _, tercero := range terceros {
-				if mTercero := tercero["TerceroPrincipal"].(*models.Tercero); vincul.TerceroPrincipalId.Id == mTercero.Id {
+				if mTercero := tercero["Tercero"].(*models.Tercero); vincul.TerceroPrincipalId.Id == mTercero.Id {
 					add = false
 					break
 				}
 			}
 			if add {
 				terceros = append(terceros, map[string]interface{}{
-					"TerceroPrincipal": vincul.TerceroPrincipalId,
-					"TipoVinculacion":  vincul.TipoVinculacionId,
-					"DependenciaId":    vincul.DependenciaId,
+					"Tercero":         vincul.TerceroPrincipalId,
+					"TipoVinculacion": vincul.TipoVinculacionId,
+					"DependenciaId":   vincul.DependenciaId,
 				})
 			}
 		}
@@ -79,7 +79,7 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 
 		// 3.1 traer los registros necesarios/disponibles
 		var terceroModelo models.Tercero
-		if err := mapstructure.Decode(tercero["TerceroPrincipal"], &terceroModelo); err != nil {
+		if err := mapstructure.Decode(tercero["Tercero"], &terceroModelo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{
 				"funcion": "GetContratista - mapstructure.Decode(tercero[\"Tercero\"], &terceroModelo)",
