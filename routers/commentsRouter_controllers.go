@@ -18,7 +18,7 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:PropiedadesController"] = append(beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:PropiedadesController"],
         beego.ControllerComments{
-            Method: "GetDependenciaById",
+            Method: "GetPropiedadesDeUnTerceroId",
             Router: "/:propiedad/:idTercero",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
