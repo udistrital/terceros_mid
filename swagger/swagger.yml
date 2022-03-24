@@ -15,8 +15,7 @@ paths:
     get:
       tags:
       - propiedad
-      description: List the Propiedades types that can be used to gather Propiedades
-        by {propiedad}
+      description: List the Propiedades types that can be used to gather Propiedades by {propiedad}
       operationId: PropiedadesController.GetAll
       responses:
         "200":
@@ -39,7 +38,7 @@ paths:
         type: string
       - in: path
         name: idTercero
-        description: Identify Dependencia by IdTercero
+        description: Tercero ID from terceros_crud
         required: true
         type: string
       responses:
@@ -97,8 +96,7 @@ paths:
     get:
       tags:
       - tipo
-      description: get Terceros with the specified {tipo} and {id} of a record in
-        terceros table from Terceros CRUD API
+      description: get Terceros with the specified {tipo} and {id} of a record in terceros table from Terceros CRUD API
       operationId: TiposController.GetAll
       parameters:
       - in: path
