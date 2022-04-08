@@ -14,7 +14,7 @@ type PropiedadesController struct {
 // URLMapping ...
 func (c *PropiedadesController) URLMapping() {
 	c.Mapping("GetPropiedades", c.GetPropiedades)
-	c.Mapping("GetDependenciaById", c.GetDependenciaById)
+	c.Mapping("GetPropiedadesDeUnTerceroId", c.GetPropiedadesDeUnTerceroId)
 }
 
 // GetPropiedades ...
@@ -40,24 +40,28 @@ func (c *PropiedadesController) GetPropiedades() {
 	}()
 
 	if v, err := propiedades.GetPropiedades(); err == nil {
-		c.Data["json"] = v
+		if len(v) > 0 {
+			c.Data["json"] = v
+		} else {
+			c.Data["json"] = []interface{}{}
+		}
 		c.ServeJSON()
 	} else {
 		panic(err)
 	}
 }
 
-// GetDependenciaById ...
+// GetPropiedadesDeUnTerceroId ...
 // @Title GetAll
 // @Description get Dependencia with the specified {idTercero}
 // @Param	propiedad	path 	string	true		"type propiedad of Terceros"
-// @Param	idTercero	path 	string	true		"Identify Dependencia by IdTercero"
+// @Param	idTercero	path 	string	true		"Tercero ID from terceros_crud"
 // @Success 200 {object} []map[string]interface{}
 // @Failure 500 Internal Error
 // @Failure 501 {user} Not Implemented
 // @Failure 502 Error with external API
 // @router /:propiedad/:idTercero [get]
-func (c *PropiedadesController) GetDependenciaById() {
+func (c *PropiedadesController) GetPropiedadesDeUnTerceroId() {
 	defer func() {
 		if err := recover(); err != nil {
 			logs.Error(err)
@@ -77,7 +81,11 @@ func (c *PropiedadesController) GetDependenciaById() {
 
 	if helper, err := propiedades.GetHelperPropiedades(propiedad); err == nil {
 		if v, err := helper(idTercero); err == nil {
-			c.Data["json"] = v
+			if len(v) > 0 {
+				c.Data["json"] = v
+			} else {
+				c.Data["json"] = []interface{}{}
+			}
 		} else {
 			panic(err)
 		}

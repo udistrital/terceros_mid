@@ -53,7 +53,7 @@
                     {
                         "in": "path",
                         "name": "idTercero",
-                        "description": "Identify Dependencia by IdTercero",
+                        "description": "Tercero ID from terceros_crud",
                         "required": true,
                         "type": "string"
                     }
