@@ -16,8 +16,8 @@ type TiposController struct {
 
 // URLMapping ...
 func (c *TiposController) URLMapping() {
-	c.Mapping("GetByTipo", c.GetByTipo)
 	c.Mapping("GetTipos", c.GetTipos)
+	c.Mapping("GetByTipo", c.GetByTipo)
 	c.Mapping("GetByTipoAndId", c.GetByTipoAndID)
 }
 
@@ -44,6 +44,11 @@ func (c *TiposController) GetTipos() {
 	}()
 
 	if v, err := tipos.GetTipos(); err == nil {
+		if len(v) > 0 {
+			c.Data["json"] = v
+		} else {
+			c.Data["json"] = []interface{}{}
+		}
 		c.Data["json"] = v
 		c.ServeJSON()
 	} else {
@@ -80,7 +85,11 @@ func (c *TiposController) GetByTipo() {
 
 	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
 		if v, err := helper(0); err == nil {
-			c.Data["json"] = v
+			if len(v) > 0 {
+				c.Data["json"] = v
+			} else {
+				c.Data["json"] = []interface{}{}
+			}
 		} else {
 			panic(err)
 		}
