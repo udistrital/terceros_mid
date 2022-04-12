@@ -34,7 +34,7 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 	}
 	if resp, err := request.GetJsonTest(urlTerceros, &vinculaciones); err == nil && resp.StatusCode == 200 {
 
-		if len(vinculaciones) == 0 || vinculaciones[0].Id == 0 {
+		if len(vinculaciones) == 0 || vinculaciones[0].TerceroPrincipalId == nil {
 			return nil, nil
 		}
 		// fmt.Println("paramId:", paramID, "#vinculaciones: ", len(vinculaciones))
