@@ -35,7 +35,22 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 	if resp, err := request.GetJsonTest(urlTerceros, &vinculaciones); err == nil && resp.StatusCode == 200 {
 
 		if len(vinculaciones) == 0 || vinculaciones[0].TerceroPrincipalId == nil {
-			return nil, nil
+			var tercero models.Tercero
+			urlTerceros = "http://" + beego.AppConfig.String("tercerosService") + "tercero/" + fmt.Sprint(idTercero)
+			if resp, err := request.GetJsonTest(urlTerceros, &tercero); err == nil && resp.StatusCode == 200 {
+				terceros = append(terceros, map[string]interface{}{
+					"Tercero": tercero,
+				})
+				return terceros, nil
+			} else {
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "/GetFuncionarios - request.GetJsonTest(urlTerceros, &tercero)",
+					"err":     err,
+					"status":  "502",
+				}
+				return nil, outputError
+			}
 		}
 		// fmt.Println("paramId:", paramID, "#vinculaciones: ", len(vinculaciones))
 
