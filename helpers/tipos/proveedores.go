@@ -2,27 +2,21 @@ package tipos
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/mitchellh/mapstructure"
+
 	"github.com/udistrital/terceros_mid/models"
+	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
 // GetProveedor trae la lista de proveedores registrados en Terceros, con opcion de filtrar por ID
 func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
-
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "GetProveedor - Uncaught Error!",
-				"err":     err,
-				"status":  "500", // Uncaught error!
-			}
-			panic(outputError)
-		}
-	}()
+	const funcion = "GetProveedor - "
+	defer e.ErrorControlFunction(funcion+"Uncaught Error!", fmt.Sprint(http.StatusInternalServerError))
 
 	// PARTE 1. Traer los ID de los tipo_tercero asociados a proveedores
 	codigosTipoTerceroProveedor := []string{"ENTIDAD_PUBLICA", "ENTIDAD_PRIVADA", "ENTIDAD_MIXTA"} // , "OPS", "PS"
@@ -37,12 +31,9 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 		if len(data) == 0 || len(data[0]) == 0 {
 			err := fmt.Errorf("No hay tipo_tercero registrados")
 			logs.Error(err)
-			outputError = map[string]interface{}{
-				"funcion": "GetProveedor - request.GetJsonTest(urlTipos, &data)",
-				"err":     err,
-				"status":  "502",
-			}
-			return nil, outputError
+			outputError = e.Error(funcion+"request.GetJsonTest(urlTipos, &data)",
+				err, fmt.Sprint(http.StatusBadGateway))
+			return
 		}
 		for _, tipoDisponible := range data {
 			for _, tipoSuficiente := range codigosTipoTerceroProveedor {
@@ -57,12 +48,9 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 			err = fmt.Errorf("Undesired status code - Got:%d", resp.StatusCode)
 		}
 		logs.Error(err)
-		outputError = map[string]interface{}{
-			"funcion": "GetProveedor - request.GetJsonTest(urlTipos, &data)",
-			"err":     err,
-			"status":  "502",
-		}
-		return nil, outputError
+		outputError = e.Error(funcion+"request.GetJsonTest(urlTipos, &data)",
+			err, fmt.Sprint(http.StatusBadGateway))
+		return
 	}
 	// logs.Debug(tipoTerceroIDs)
 
@@ -92,12 +80,9 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 				var terData models.Tercero
 				if err := mapstructure.Decode(terceroTipo["TerceroId"], &terData); err != nil {
 					logs.Error(err)
-					outputError = map[string]interface{}{
-						"funcion": "GetProveedor - mapstructure.Decode(terceroTipo[\"TerceroId\"], &terData)",
-						"err":     err,
-						"status":  "500",
-					}
-					return nil, outputError
+					outputError = e.Error(funcion+`mapstructure.Decode(terceroTipo["TerceroId"], &terData)`,
+						err, fmt.Sprint(http.StatusInternalServerError))
+					return
 				}
 
 				// logs.Debug("terData:", terData)
@@ -113,12 +98,9 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 				err = fmt.Errorf("Undesired Status Code: %d", resp.StatusCode)
 			}
 			logs.Error(err)
-			outputError = map[string]interface{}{
-				"funcion": "GetProveedor - request.GetJsonTest(urlTerceros, &data)",
-				"err":     err,
-				"status":  "502",
-			}
-			return nil, outputError
+			outputError = e.Error(funcion+"request.GetJsonTest(urlTerceros, &data)",
+				err, fmt.Sprint(http.StatusBadGateway))
+			return
 		}
 	}
 	// formatdata.JsonPrint(tercerosMap)
@@ -140,12 +122,9 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 				var dataTercero models.DatosIdentificacion
 				if err := mapstructure.Decode(dataTerceros[0], &dataTercero); err != nil {
 					logs.Error(err)
-					outputError = map[string]interface{}{
-						"funcion": "GetProveedor - mapstructure.Decode(dataTerceros[0], &dataTercero)",
-						"err":     err,
-						"status":  "500",
-					}
-					return nil, outputError
+					outputError = e.Error(funcion+"mapstructure.Decode(dataTerceros[0], &dataTercero)",
+						err, fmt.Sprint(http.StatusInternalServerError))
+					return
 				}
 				dataRecortada := map[string]interface{}{
 					// "TipoDocumentoId": dataModel.TipoDocumentoId,
@@ -165,12 +144,9 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 				err = fmt.Errorf("Undesired Status Code: %d", resp.StatusCode)
 			}
 			logs.Error(err)
-			outputError = map[string]interface{}{
-				"funcion": "GetProveedor - request.GetJsonTest(urlDocTercero, &dataTerceros)",
-				"err":     err,
-				"status":  "502",
-			}
-			return nil, outputError
+			outputError = e.Error(funcion+"request.GetJsonTest(urlDocTercero, &dataTerceros)",
+				err, fmt.Sprint(http.StatusBadGateway))
+			return
 		}
 
 		terceros = append(terceros, dataFinal)
