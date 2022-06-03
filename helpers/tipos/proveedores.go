@@ -6,9 +6,8 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/mitchellh/mapstructure"
 
-	"github.com/udistrital/terceros_mid/models"
+	TercerosCrudModels "github.com/udistrital/terceros_crud/models"
 	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -19,129 +18,72 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 	defer e.ErrorControlFunction(funcion+"Uncaught Error!", fmt.Sprint(http.StatusInternalServerError))
 
 	// PARTE 1. Traer los ID de los tipo_tercero asociados a proveedores
-	codigosTipoTerceroProveedor := []string{"ENTIDAD_PUBLICA", "ENTIDAD_PRIVADA", "ENTIDAD_MIXTA"} // , "OPS", "PS"
-	tipoTerceroIDs := make(map[string]int)
+	// Eliminada: Desde que esté registrado en Agora/terceros, debería poder
+	// seleccionarse como proveedor. Si se requiere a futuro el reestablecer
+	// algun criterio de filtrado, se podrían agregar opciones __in al query
 
-	var data []map[string]interface{}
-	urlTipos := "http://" + beego.AppConfig.String("tercerosService") + "tipo_tercero?limit=-1"
-	urlTipos += "&fields=Id,CodigoAbreviacion"
-	urlTipos += "&query=Activo:true"
-	// fmt.Println(urlParametros)
-	if resp, err := request.GetJsonTest(urlTipos, &data); err == nil && resp.StatusCode == 200 {
-		if len(data) == 0 || len(data[0]) == 0 {
-			err := fmt.Errorf("No hay tipo_tercero registrados")
-			logs.Error(err)
-			outputError = e.Error(funcion+"request.GetJsonTest(urlTipos, &data)",
-				err, fmt.Sprint(http.StatusBadGateway))
+	// PARTE 2 - Traer los terceros
+	var tercerosMap []TercerosCrudModels.Tercero
+	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "tercero?limit=-1"
+	urlTerceros += "&fields=Id,NombreCompleto"
+	urlTerceros += "&query=Activo:true"
+	if idProveedor > 0 {
+		urlTerceros += ",Id:" + fmt.Sprint(idProveedor)
+	}
+	// logs.Debug("urlTerceros:", urlTerceros)
+	if resp, err := request.GetJsonTest(urlTerceros, &tercerosMap); err == nil && resp.StatusCode == 200 {
+		if len(tercerosMap) == 0 || tercerosMap[0].Id == 0 {
 			return
-		}
-		for _, tipoDisponible := range data {
-			for _, tipoSuficiente := range codigosTipoTerceroProveedor {
-				if tipoDisponible["CodigoAbreviacion"] == tipoSuficiente {
-					// fmt.Printf("P=P %v - T(id):%T - v:%f\n", paramVinculacion, paramVinculacion["Id"], paramVinculacion["Id"])
-					tipoTerceroIDs[tipoSuficiente] = int(tipoDisponible["Id"].(float64))
-				}
-			}
 		}
 	} else {
 		if err == nil {
-			err = fmt.Errorf("Undesired status code - Got:%d", resp.StatusCode)
+			err = fmt.Errorf("undesired Status Code: %d", resp.StatusCode)
 		}
 		logs.Error(err)
-		outputError = e.Error(funcion+"request.GetJsonTest(urlTipos, &data)",
+		outputError = e.Error(funcion+"request.GetJsonTest(urlTerceros, &tercerosMap)",
 			err, fmt.Sprint(http.StatusBadGateway))
 		return
 	}
-	// logs.Debug(tipoTerceroIDs)
-
-	// PARTE 2 - Traer los terceros con los tipo_tercero requeridos
-	tercerosMap := make(map[int](map[string]interface{}))
-	for _, id := range tipoTerceroIDs {
-		// logs.Debug("param:", param, "- id:", id)
-		data = make([]map[string]interface{}, 0)
-		urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "tercero_tipo_tercero?limit=-1"
-		urlTerceros += "&fields=TerceroId"
-		urlTerceros += "&query=Activo:true,TipoTerceroId__Id:" + fmt.Sprint(id)
-		if idProveedor > 0 {
-			// logs.Debug("idProveedor:", idProveedor)
-			urlTerceros += ",TerceroId__Id:" + fmt.Sprint(idProveedor)
-		}
-		// logs.Debug("urlTerceros:", urlTerceros)
-		// fmt.Println(urlTerceros)
-		if resp, err := request.GetJsonTest(urlTerceros, &data); err == nil && resp.StatusCode == 200 {
-			if len(data) == 0 || len(data[0]) == 0 {
-				// logs.Debug("No se encontraron terceros. Saltando al siguiente parametro")
-				continue
-			}
-
-			for _, terceroTipo := range data {
-				// logs.Debug("terceroTipo:", terceroTipo)
-
-				var terData models.Tercero
-				if err := mapstructure.Decode(terceroTipo["TerceroId"], &terData); err != nil {
-					logs.Error(err)
-					outputError = e.Error(funcion+`mapstructure.Decode(terceroTipo["TerceroId"], &terData)`,
-						err, fmt.Sprint(http.StatusInternalServerError))
-					return
-				}
-
-				// logs.Debug("terData:", terData)
-				terceroClean := map[string]interface{}{
-					"Id":             terData.Id,
-					"NombreCompleto": terData.NombreCompleto,
-				}
-				tercerosMap[terData.Id] = terceroClean
-				// logs.Debug("terceroClean:", terceroClean)
-			}
-		} else {
-			if err == nil {
-				err = fmt.Errorf("Undesired Status Code: %d", resp.StatusCode)
-			}
-			logs.Error(err)
-			outputError = e.Error(funcion+"request.GetJsonTest(urlTerceros, &data)",
-				err, fmt.Sprint(http.StatusBadGateway))
-			return
-		}
-	}
-	// formatdata.JsonPrint(tercerosMap)
+	// formatdata.JsonPrint(tercerosSinMas)
 
 	// PARTE 3: Completar información de identificación, de estar disponible
-	for idTercero, dataTercero := range tercerosMap {
+	for _, dataTercero := range tercerosMap {
 
 		dataFinal := map[string]interface{}{
-			"Tercero": dataTercero,
+			"Tercero": map[string]interface{}{
+				"Id":             dataTercero.Id,
+				"NombreCompleto": dataTercero.NombreCompleto,
+			},
 		}
 
-		var dataTerceros []map[string]interface{} // models.DatosIdentificacion
+		const limitDocs = 10
+		var dataTerceros []TercerosCrudModels.DatosIdentificacion
 		urlDocTercero := "http://" + beego.AppConfig.String("tercerosService") + "datos_identificacion"
 		urlDocTercero += "?fields=TipoDocumentoId,Numero"
-		urlDocTercero += "&query=Activo:true,TerceroId__Id:" + fmt.Sprint(idTercero)
+		urlDocTercero += "&query=Activo:true,TerceroId__Id:" + fmt.Sprint(dataTercero.Id)
 		// logs.Debug("urlDocTercero: ", urlDocTercero)
 		if resp, err := request.GetJsonTest(urlDocTercero, &dataTerceros); err == nil && resp.StatusCode == 200 {
-			if len(dataTerceros) == 1 && len(dataTerceros[0]) > 0 {
-				var dataTercero models.DatosIdentificacion
-				if err := mapstructure.Decode(dataTerceros[0], &dataTercero); err != nil {
-					logs.Error(err)
-					outputError = e.Error(funcion+"mapstructure.Decode(dataTerceros[0], &dataTercero)",
-						err, fmt.Sprint(http.StatusInternalServerError))
-					return
-				}
+			// TODO: Retornar los documentos únicos activos que tiene el tercero, en un arreglo o mapeo
+			if len(dataTerceros) == 1 && dataTerceros[0].TipoDocumentoId.Id > 0 {
 				dataRecortada := map[string]interface{}{
-					// "TipoDocumentoId": dataModel.TipoDocumentoId,
 					"TipoDocumentoId": map[string]interface{}{
-						"Id":     dataTercero.TipoDocumentoId.Id,
-						"Nombre": dataTercero.TipoDocumentoId.Nombre,
+						"Id":     dataTerceros[0].TipoDocumentoId.Id,
+						"Nombre": dataTerceros[0].TipoDocumentoId.Nombre,
 					},
-					"Numero": dataTercero.Numero,
+					"Numero": dataTerceros[0].Numero,
 				}
 				dataFinal["Identificacion"] = dataRecortada
 			} else {
-				err := fmt.Errorf("No hay UN (único) documento registrado como Activo para el Tercero con ID: %d", idTercero)
-				logs.Warn(err)
+				s := ""
+				if len(dataTerceros) >= limitDocs {
+					s += " (o mas)"
+				}
+				err := fmt.Errorf("se esperaba UN (único) documento activo registrado para el Tercero con ID: %d, hay: %d%s", dataTercero.Id, len(dataTerceros), s)
+				logs.Notice(err)
 			}
 		} else {
 			if err == nil {
-				err = fmt.Errorf("Undesired Status Code: %d", resp.StatusCode)
+				err = fmt.Errorf("undesired Status Code: %d", resp.StatusCode)
 			}
 			logs.Error(err)
 			outputError = e.Error(funcion+"request.GetJsonTest(urlDocTercero, &dataTerceros)",
