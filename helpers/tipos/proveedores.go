@@ -23,8 +23,11 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 	// algun criterio de filtrado, se podrían agregar opciones __in al query
 
 	// PARTE 2 - Traer los terceros
+	const limit = 10
+	const offset = 0
 	var tercerosMap []TercerosCrudModels.Tercero
-	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "tercero?limit=-1"
+	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "tercero"
+	urlTerceros += fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
 	urlTerceros += "&fields=Id,NombreCompleto"
 	urlTerceros += "&query=Activo:true"
 	if idProveedor > 0 {
@@ -44,7 +47,7 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 			err, fmt.Sprint(http.StatusBadGateway))
 		return
 	}
-	// formatdata.JsonPrint(tercerosSinMas)
+	// logs.Debug("tercerosMap:", tercerosMap)
 
 	// PARTE 3: Completar información de identificación, de estar disponible
 	for _, dataTercero := range tercerosMap {
@@ -64,7 +67,7 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 		// logs.Debug("urlDocTercero: ", urlDocTercero)
 		if resp, err := request.GetJsonTest(urlDocTercero, &dataTerceros); err == nil && resp.StatusCode == 200 {
 			// TODO: Retornar los documentos únicos activos que tiene el tercero, en un arreglo o mapeo
-			if len(dataTerceros) == 1 && dataTerceros[0].TipoDocumentoId.Id > 0 {
+			if len(dataTerceros) == 1 && dataTerceros[0].Numero != "" {
 				dataRecortada := map[string]interface{}{
 					"TipoDocumentoId": map[string]interface{}{
 						"Id":     dataTerceros[0].TipoDocumentoId.Id,
@@ -74,11 +77,18 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 				}
 				dataFinal["Identificacion"] = dataRecortada
 			} else {
+
+				found := len(dataTerceros)
+				if found == 1 && dataTerceros[0].Numero == "" {
+					found = 0
+				}
+
 				s := ""
-				if len(dataTerceros) >= limitDocs {
+				if found >= limitDocs {
 					s += " (o mas)"
 				}
-				err := fmt.Errorf("se esperaba UN (único) documento activo registrado para el Tercero con ID: %d, hay: %d%s", dataTercero.Id, len(dataTerceros), s)
+
+				err := fmt.Errorf("se esperaba UN (único) documento activo registrado para el Tercero con ID: %d, hay: %d%s", dataTercero.Id, found, s)
 				logs.Notice(err)
 			}
 		} else {
@@ -93,7 +103,5 @@ func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputErr
 
 		terceros = append(terceros, dataFinal)
 	}
-	// formatdata.JsonPrint(terceros)
-
 	return
 }
