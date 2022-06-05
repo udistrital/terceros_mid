@@ -2,8 +2,11 @@ package tipos
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego/logs"
+
+	e "github.com/udistrital/utils_oas/errorctrl"
 )
 
 var diccionarioTipoHelper = map[string](func(int) ([]map[string]interface{}, map[string]interface{})){
@@ -17,18 +20,9 @@ var diccionarioTipoHelper = map[string](func(int) ([]map[string]interface{}, map
 
 // GetTipos retorna la lista de tipos que pueden ser usados con GetHelperTipo
 func GetTipos() (tercero []string, outputError map[string]interface{}) {
-
 	// Puede que ni sea necesario en este helper, pero se coloca por lineamiento...
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "GetTipos - Unhandled Error!",
-				"err":     err,
-				"status":  "500", // Error no manejado!
-			}
-			panic(outputError)
-		}
-	}()
+	const funcion = "GetTipos - "
+	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
 	for k := range diccionarioTipoHelper {
 		tercero = append(tercero, k)
@@ -39,17 +33,8 @@ func GetTipos() (tercero []string, outputError map[string]interface{}) {
 // GetHelperTipo trae los terceros con el criterio especificado.
 // El criterio debe ser alguno de los valores retornados por GetTipos
 func GetHelperTipo(tipo string) (helper func(int) ([]map[string]interface{}, map[string]interface{}), outputError map[string]interface{}) {
-
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "GetHelperTipo - Unhandled Error!",
-				"err":     err,
-				"status":  "500", // Error no manejado!
-			}
-			panic(outputError)
-		}
-	}()
+	const funcion = "GetHelperTipo"
+	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
 	if helper, found := diccionarioTipoHelper[tipo]; found {
 		return helper, nil
@@ -58,9 +43,6 @@ func GetHelperTipo(tipo string) (helper func(int) ([]map[string]interface{}, map
 	err := fmt.Errorf("\"%s\" not implemented", tipo)
 	logs.Error(err)
 
-	return nil, map[string]interface{}{
-		"funcion": "GetHelperTipo - found := diccionarioTipoHelper[tipo]",
-		"err":     err,
-		"status":  "404",
-	}
+	return nil, e.Error(funcion+"helper, found := diccionarioTipoHelper[tipo]",
+		err, fmt.Sprint(http.StatusNotFound))
 }

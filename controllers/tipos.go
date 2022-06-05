@@ -2,11 +2,14 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+
 	"github.com/udistrital/terceros_mid/helpers/tipos"
+	e "github.com/udistrital/utils_oas/errorctrl"
 )
 
 // TercerosController operations for Terceros
@@ -29,19 +32,7 @@ func (c *TiposController) URLMapping() {
 func (c *TiposController) GetTipos() {
 
 	// Puede que ni sea necesario en este controlador, pero se coloca por lineamiento...
-	defer func() {
-		if err := recover(); err != nil {
-			logs.Error(err)
-			localError := err.(map[string]interface{})
-			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "TiposController" + "/" + (localError["funcion"]).(string))
-			c.Data["data"] = (localError["err"])
-			if status, ok := localError["status"]; ok {
-				c.Abort(status.(string))
-			} else {
-				c.Abort("500") // Error no manejado!
-			}
-		}
-	}()
+	defer e.ErrorControlController(c.Controller, "TiposController")
 
 	if v, err := tipos.GetTipos(); err == nil {
 		if len(v) > 0 {
@@ -66,20 +57,7 @@ func (c *TiposController) GetTipos() {
 // @Failure 502 Error with external API
 // @router /:tipo [get]
 func (c *TiposController) GetByTipo() {
-
-	defer func() {
-		if err := recover(); err != nil {
-			logs.Error(err)
-			localError := err.(map[string]interface{})
-			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "TiposController" + "/" + (localError["funcion"]).(string))
-			c.Data["data"] = (localError["err"])
-			if status, ok := localError["status"]; ok {
-				c.Abort(status.(string))
-			} else {
-				c.Abort("500") // Error no manejado!
-			}
-		}
-	}()
+	defer e.ErrorControlController(c.Controller, "TiposController")
 
 	tipo := c.Ctx.Input.Param(":tipo")
 
@@ -112,20 +90,8 @@ func (c *TiposController) GetByTipo() {
 // @Failure 502 Error with external API
 // @router /:tipo/:id [get]
 func (c *TiposController) GetByTipoAndID() {
-
-	defer func() {
-		if err := recover(); err != nil {
-			logs.Error(err)
-			localError := err.(map[string]interface{})
-			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "TiposController" + "/" + (localError["funcion"]).(string))
-			c.Data["data"] = (localError["err"])
-			if status, ok := localError["status"]; ok {
-				c.Abort(status.(string))
-			} else {
-				c.Abort("500") // Error no manejado!
-			}
-		}
-	}()
+	const funcion = "GetByTipoAndID - "
+	defer e.ErrorControlController(c.Controller, "TiposController")
 
 	tipo := c.Ctx.Input.Param(":tipo")
 	idQuery := c.Ctx.Input.Param(":id")
@@ -137,22 +103,14 @@ func (c *TiposController) GetByTipoAndID() {
 			err = fmt.Errorf("ID MUST be greater than 0 - Got: %d", i)
 		}
 		logs.Error(err)
-		panic(map[string]interface{}{
-			"funcion": "GetByTipoAndID - strconv.Atoi(idQuery)",
-			"err":     err,
-			"status":  "400",
-		})
+		panic(e.Error(funcion+`strconv.Atoi(idQuery)`, err, fmt.Sprint(http.StatusBadRequest)))
 	}
 
 	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
 		if v, err := helper(id); err == nil {
 			if len(v) == 0 {
 				err := fmt.Errorf("no se encontró un Tercero tipo '%s' con id '%d'", tipo, id)
-				panic(map[string]interface{}{
-					"funcion": "GetByTipoAndID - len(v) == 0",
-					"err":     err,
-					"status":  "404",
-				})
+				panic(e.Error(funcion+"len(v) == 0", err, fmt.Sprint(http.StatusNotFound)))
 			}
 			c.Data["json"] = v
 		} else {
