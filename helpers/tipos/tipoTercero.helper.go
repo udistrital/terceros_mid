@@ -12,6 +12,7 @@ var diccionarioTipoHelper = map[string](func(int) ([]map[string]interface{}, map
 	"contratista":       GetContratista,
 	"proveedor":         GetProveedor,
 	"funcionarios":      GetFuncionarios,
+	"jefeDependencia":   GetJefeDependencia,
 }
 
 // GetTipos retorna la lista de tipos que pueden ser usados con GetHelperTipo
