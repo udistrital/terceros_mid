@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
 
 	"github.com/udistrital/terceros_mid/helpers/tipos"
 	e "github.com/udistrital/utils_oas/errorctrl"
@@ -61,8 +60,6 @@ func (c *TiposController) GetByTipo() {
 
 	tipo := c.Ctx.Input.Param(":tipo")
 	query := c.GetString("query")
-	logs.Debug("query:", query)
-
 	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
 		if v, err := helper(0, query); err == nil {
 			if len(v) > 0 {

@@ -23,12 +23,14 @@ import (
 //
 // Vease también: https://golang.cafe/blog/how-to-url-encode-string-in-golang-example.html
 func PrepareBeegoQuery(query string,
-	fields, sortby, order []string, limit, offset string) (
+	fields, sortby, order []string, limit, offset int) (
 	params url.Values, outputError map[string]interface{}) {
 	const funcion = "PrepareBeegoQuery - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	if len(query) > 0 {
+	params = url.Values{}
+
+	if query != "" {
 		params.Add("query", query)
 	}
 
@@ -44,11 +46,13 @@ func PrepareBeegoQuery(query string,
 		return nil, e.Error(funcion+`len(sortby) != len(order)`, err, fmt.Sprint(http.StatusBadRequest))
 	}
 
-	if len(limit) > 0 {
-		params.Add("limit", limit)
+	if limit != 0 {
+		params.Add("limit", fmt.Sprint(limit))
 	}
-	if len(offset) > 0 {
-		params.Add("offset", offset)
+
+	if offset != 0 {
+		params.Add("offset", fmt.Sprint(offset))
 	}
+
 	return
 }
