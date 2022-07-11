@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
+
 	"github.com/udistrital/terceros_mid/helpers/propiedades"
+	e "github.com/udistrital/utils_oas/errorctrl"
 )
 
 // PropiedadesController operations for propiedades
@@ -23,21 +24,8 @@ func (c *PropiedadesController) URLMapping() {
 // @Success 200 {object} []string
 // @router / [get]
 func (c *PropiedadesController) GetPropiedades() {
-
 	// Puede que ni sea necesario en este controlador, pero se coloca por lineamiento...
-	defer func() {
-		if err := recover(); err != nil {
-			logs.Error(err)
-			localError := err.(map[string]interface{})
-			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "PropiedadesController" + "/" + (localError["funcion"]).(string))
-			c.Data["data"] = (localError["err"])
-			if status, ok := localError["status"]; ok {
-				c.Abort(status.(string))
-			} else {
-				c.Abort("500") // Error no manejado!
-			}
-		}
-	}()
+	defer e.ErrorControlController(c.Controller, "PropiedadesController")
 
 	if v, err := propiedades.GetPropiedades(); err == nil {
 		if len(v) > 0 {
@@ -62,19 +50,7 @@ func (c *PropiedadesController) GetPropiedades() {
 // @Failure 502 Error with external API
 // @router /:propiedad/:idTercero [get]
 func (c *PropiedadesController) GetPropiedadesDeUnTerceroId() {
-	defer func() {
-		if err := recover(); err != nil {
-			logs.Error(err)
-			localError := err.(map[string]interface{})
-			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "PropiedadesController" + "/" + (localError["funcion"]).(string))
-			c.Data["data"] = (localError["err"])
-			if status, ok := localError["status"]; ok {
-				c.Abort(status.(string))
-			} else {
-				c.Abort("500") // Error no manejado!
-			}
-		}
-	}()
+	defer e.ErrorControlController(c.Controller, "PropiedadesController")
 
 	idTercero := c.Ctx.Input.Param(":idTercero")
 	propiedad := c.Ctx.Input.Param(":propiedad")

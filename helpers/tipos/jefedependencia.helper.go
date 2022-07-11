@@ -1,16 +1,21 @@
 package tipos
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+
 	"github.com/udistrital/terceros_mid/models"
+	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
 // GetJefeDependencia obtiene la información del tercero y el cargo del jefe de la dependencia indicada
-func GetJefeDependencia(dependenciaId int) (jefeDependencia []map[string]interface{}, outputError map[string]interface{}) {
+func GetJefeDependencia(dependenciaId int, query string) (jefeDependencia []map[string]interface{}, outputError map[string]interface{}) {
+	const funcion = "GetJefeDependencia - "
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
@@ -21,6 +26,11 @@ func GetJefeDependencia(dependenciaId int) (jefeDependencia []map[string]interfa
 			panic(outputError)
 		}
 	}()
+
+	if query != "" {
+		err := errors.New("query no implementado")
+		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
+	}
 
 	var dependencia models.Dependencia
 	var terceros []models.Vinculacion
