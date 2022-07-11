@@ -1,6 +1,7 @@
 package tipos
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -13,9 +14,14 @@ import (
 )
 
 // GetProveedor trae la lista de proveedores registrados en Terceros, con opcion de filtrar por ID
-func GetProveedor(idProveedor int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+func GetProveedor(idProveedor int, query string) (terceros []map[string]interface{}, outputError map[string]interface{}) {
 	const funcion = "GetProveedor - "
 	defer e.ErrorControlFunction(funcion+"Uncaught Error!", fmt.Sprint(http.StatusInternalServerError))
+
+	if query != "" {
+		err := errors.New("query no implementado")
+		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
+	}
 
 	// PARTE 1. Traer los ID de los tipo_tercero asociados a proveedores
 	// Eliminada: Desde que esté registrado en Agora/terceros, debería poder

@@ -1,18 +1,23 @@
 package tipos
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/mitchellh/mapstructure"
+
 	"github.com/udistrital/terceros_mid/helpers/propiedades"
 	"github.com/udistrital/terceros_mid/models"
+	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
 // GetFuncionarios trae los terceros que tienen un registro en la tabla vinculacion del api terceros_crud
-func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+func GetFuncionarios(idTercero int, query string) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+	const funcion = "GetFuncionarios - "
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -24,6 +29,11 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 			panic(outputError)
 		}
 	}()
+
+	if query != "" {
+		err := errors.New("query no implementado")
+		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
+	}
 
 	var vinculaciones []models.Vinculacion
 	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=-1"

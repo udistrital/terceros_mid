@@ -9,7 +9,9 @@ import (
 	e "github.com/udistrital/utils_oas/errorctrl"
 )
 
-var diccionarioTipoHelper = map[string](func(int) ([]map[string]interface{}, map[string]interface{})){
+type TipoHelper func(int, string) ([]map[string]interface{}, map[string]interface{})
+
+var diccionarioTipoHelper = map[string]TipoHelper{
 	"funcionarioPlanta": GetFuncionariosPlanta,
 	"ordenadoresGasto":  GetOrdenadores,
 	"contratista":       GetContratista,
@@ -32,7 +34,7 @@ func GetTipos() (tercero []string, outputError map[string]interface{}) {
 
 // GetHelperTipo trae los terceros con el criterio especificado.
 // El criterio debe ser alguno de los valores retornados por GetTipos
-func GetHelperTipo(tipo string) (helper func(int) ([]map[string]interface{}, map[string]interface{}), outputError map[string]interface{}) {
+func GetHelperTipo(tipo string) (helper TipoHelper, outputError map[string]interface{}) {
 	const funcion = "GetHelperTipo"
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 

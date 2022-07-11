@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 
 	"github.com/udistrital/terceros_mid/helpers/tipos"
 	e "github.com/udistrital/utils_oas/errorctrl"
@@ -49,6 +50,7 @@ func (c *TiposController) GetTipos() {
 // @Title GetAll
 // @Description get Terceros with the specified {tipo}
 // @Param	tipo	path 	string	true		"Tercero type available from /tipo/"
+// @Param	query	query	string	false		"Query param"
 // @Success 200 {object} []map[string]interface{}
 // @Failure 500 Internal Error
 // @Failure 501 {tipo} Not Implemented
@@ -58,9 +60,11 @@ func (c *TiposController) GetByTipo() {
 	defer e.ErrorControlController(c.Controller, "TiposController")
 
 	tipo := c.Ctx.Input.Param(":tipo")
+	query := c.GetString("query")
+	logs.Debug("query:", query)
 
 	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
-		if v, err := helper(0); err == nil {
+		if v, err := helper(0, query); err == nil {
 			if len(v) > 0 {
 				c.Data["json"] = v
 			} else {
@@ -104,7 +108,7 @@ func (c *TiposController) GetByTipoAndID() {
 	}
 
 	if helper, err := tipos.GetHelperTipo(tipo); err == nil {
-		if v, err := helper(id); err == nil {
+		if v, err := helper(id, ""); err == nil {
 			if len(v) == 0 {
 				err := fmt.Errorf("no se encontró un Tercero tipo '%s' con id '%d'", tipo, id)
 				panic(e.Error(funcion+"len(v) == 0", err, fmt.Sprint(http.StatusNotFound)))
