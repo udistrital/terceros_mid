@@ -1,18 +1,23 @@
 package tipos
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/mitchellh/mapstructure"
+
 	"github.com/udistrital/terceros_mid/helpers/propiedades"
 	"github.com/udistrital/terceros_mid/models"
+	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
 // GetFuncionarios trae los terceros que tienen un registro en la tabla vinculacion del api terceros_crud
-func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+func GetFuncionarios(idTercero int, query string) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+	const funcion = "GetFuncionarios - "
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -25,6 +30,11 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 		}
 	}()
 
+	if query != "" {
+		err := errors.New("query no implementado")
+		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
+	}
+
 	var vinculaciones []models.Vinculacion
 	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=-1"
 	urlTerceros += "&fields=Id,TerceroPrincipalId,TipoVinculacionId,DependenciaId"
@@ -35,7 +45,22 @@ func GetFuncionarios(idTercero int) (terceros []map[string]interface{}, outputEr
 	if resp, err := request.GetJsonTest(urlTerceros, &vinculaciones); err == nil && resp.StatusCode == 200 {
 
 		if len(vinculaciones) == 0 || vinculaciones[0].TerceroPrincipalId == nil {
-			return nil, nil
+			var tercero models.Tercero
+			urlTerceros = "http://" + beego.AppConfig.String("tercerosService") + "tercero/" + fmt.Sprint(idTercero)
+			if resp, err := request.GetJsonTest(urlTerceros, &tercero); err == nil && resp.StatusCode == 200 {
+				terceros = append(terceros, map[string]interface{}{
+					"Tercero": tercero,
+				})
+				return terceros, nil
+			} else {
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "/GetFuncionarios - request.GetJsonTest(urlTerceros, &tercero)",
+					"err":     err,
+					"status":  "502",
+				}
+				return nil, outputError
+			}
 		}
 		// fmt.Println("paramId:", paramID, "#vinculaciones: ", len(vinculaciones))
 

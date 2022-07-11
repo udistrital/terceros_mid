@@ -79,6 +79,10 @@ paths:
         description: Tercero type available from /tipo/
         required: true
         type: string
+      - in: query
+        name: query
+        description: Query param
+        type: string
       responses:
         "200":
           description: ""
@@ -106,7 +110,7 @@ paths:
         type: string
       - in: path
         name: id
-        description: ID. MUST be greater than 0
+        description: Tercero ID. Must be positive when specified
         required: true
         type: integer
         format: int32
