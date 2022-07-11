@@ -2,8 +2,11 @@ package propiedades
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego/logs"
+
+	e "github.com/udistrital/utils_oas/errorctrl"
 )
 
 var diccionarioPropiedadesHelper = map[string](func(string) ([]map[string]interface{}, map[string]interface{})){
@@ -14,18 +17,9 @@ var diccionarioPropiedadesHelper = map[string](func(string) ([]map[string]interf
 
 // GetPropiedades retorna la lista de propiedades que pueden ser usados con GetHelperPropiedades
 func GetPropiedades() (propiedad []string, outputError map[string]interface{}) {
-
 	// Puede que ni sea necesario en este helper, pero se coloca por lineamiento...
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "GetPropiedades - Unhandled Error!",
-				"err":     err,
-				"status":  "500", // Error no manejado!
-			}
-			panic(outputError)
-		}
-	}()
+	const funcion = "GetPropiedades - "
+	defer e.ErrorControlFunction(funcion+"Unhandled Error!", fmt.Sprint(http.StatusInternalServerError))
 
 	for k := range diccionarioPropiedadesHelper {
 		propiedad = append(propiedad, k)
@@ -36,17 +30,8 @@ func GetPropiedades() (propiedad []string, outputError map[string]interface{}) {
 // GetHelperTipo trae los terceros con el criterio especificado.
 // El criterio debe ser alguno de los valores retornados por GetTipos
 func GetHelperPropiedades(propiedad string) (helper func(string) ([]map[string]interface{}, map[string]interface{}), outputError map[string]interface{}) {
-
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "GetHelperPropiedades - Unhandled Error!",
-				"err":     err,
-				"status":  "500", // Error no manejado!
-			}
-			panic(outputError)
-		}
-	}()
+	const funcion = "GetHelperPropiedades - "
+	defer e.ErrorControlFunction(funcion+"Unhandled Error!", fmt.Sprint(http.StatusInternalServerError))
 
 	if helper, found := diccionarioPropiedadesHelper[propiedad]; found {
 		return helper, nil
@@ -55,9 +40,6 @@ func GetHelperPropiedades(propiedad string) (helper func(string) ([]map[string]i
 	err := fmt.Errorf("\"%s\" not implemented", propiedad)
 	logs.Error(err)
 
-	return nil, map[string]interface{}{
-		"funcion": "GetHelperPropiedades - found := diccionarioPropiedadesHelper[propiedad]",
-		"err":     err,
-		"status":  "404",
-	}
+	return nil, e.Error(funcion+"helper, found := diccionarioPropiedadesHelper[propiedad]",
+		err, fmt.Sprint(http.StatusNotFound))
 }

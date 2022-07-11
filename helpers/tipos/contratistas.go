@@ -1,18 +1,23 @@
 package tipos
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/mitchellh/mapstructure"
+
 	"github.com/udistrital/terceros_mid/models"
+	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
 // GetContratista trae la lista de contratistas registrados en Terceros, con opción de filtrar por ID
-func GetContratista(idTercero int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+func GetContratista(idTercero int, query string) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+	const funcion = "GetContratista - "
 
 	step := "0"
 
@@ -26,6 +31,11 @@ func GetContratista(idTercero int) (terceros []map[string]interface{}, outputErr
 			panic(outputError)
 		}
 	}()
+
+	if query != "" {
+		err := errors.New("query no implementado")
+		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
+	}
 
 	// PARTE 1. Traer los ID de los parámetros asociados a contratistas
 

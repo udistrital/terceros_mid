@@ -74,42 +74,6 @@ func TestGetProveedor(t *testing.T) {
 	}
 }
 
-// TestGetFuncionariosPlanta ...
-func TestGetNombreTerceroById(t *testing.T) {
-
-	if valor, err := tipos.GetNombreTerceroById("81"); err != nil {
-		t.Error("No se pudo consultar el tercero", err)
-		t.Fail()
-	} else {
-		t.Log(valor)
-		t.Log("TestGetNombreTerceroById Finalizado Correctamente")
-	}
-}
-
-// TestGetFuncionariosPlanta ...
-func TestGetTerceroByUsuarioWSO2(t *testing.T) {
-
-	if valor, err := tipos.GetTerceroByUsuarioWSO2("utest01"); err != nil {
-		t.Error("No se pudo consultar el tercero", err)
-		t.Fail()
-	} else {
-		t.Log(valor)
-		t.Log("TestGetTerceroByUsuarioWSO2 Finalizado Correctamente")
-	}
-}
-
-// TestGetTerceroByDoc ...
-func TestGetTerceroByDoc(t *testing.T) {
-
-	if valor, err := tipos.GetTerceroByDoc("80000000"); err != nil {
-		t.Error("No se pudo consultar el tercero", err)
-		t.Fail()
-	} else {
-		t.Log(valor)
-		t.Log("TestGetTerceroByDoc Finalizado Correctamente")
-	}
-}
-
 // TestGetTipos ...
 func TestGetTipos(t *testing.T) {
 

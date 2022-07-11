@@ -1,16 +1,21 @@
 package tipos
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+
 	"github.com/udistrital/terceros_mid/models"
+	e "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
 // GetFuncionariosPlanta trae los funcionarios de planta
-func GetFuncionariosPlanta(idTercero int) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+func GetFuncionariosPlanta(idTercero int, query string) (terceros []map[string]interface{}, outputError map[string]interface{}) {
+	const funcion = "GetFuncionariosPlanta - "
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -22,6 +27,11 @@ func GetFuncionariosPlanta(idTercero int) (terceros []map[string]interface{}, ou
 			panic(outputError)
 		}
 	}()
+
+	if query != "" {
+		err := errors.New("query no implementado")
+		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
+	}
 
 	// PARTE 1. Traer los ID de los parámetros asociados a funcionarios de planta
 
