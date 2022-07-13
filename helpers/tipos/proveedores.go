@@ -104,8 +104,9 @@ func GetProveedor(idProveedor int, query string) (terceros []map[string]interfac
 			},
 			"Identificacion": map[string]interface{}{
 				"TipoDocumentoId": map[string]interface{}{
-					"Id":     v.TipoDocumentoId.Id,
-					"Nombre": v.TipoDocumentoId.Nombre,
+					"Id":                v.TipoDocumentoId.Id,
+					"Nombre":            v.TipoDocumentoId.Nombre, // TODO: Revisar otras APIs y eliminar este campo
+					"CodigoAbreviacion": v.TipoDocumentoId.CodigoAbreviacion,
 				},
 				"Numero": v.Numero,
 			},

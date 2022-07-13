@@ -26,8 +26,8 @@ func GetVinculaciones(vinculaciones *[]models.Vinculacion, query string,
 		return err
 	}
 	urlVinculaciones += params.Encode()
-	// logs.Debug("urlVinculaciones:", urlVinculaciones)
 	var data interface{}
+	// logs.Debug("urlVinculaciones:", urlVinculaciones, "- data:", data)
 	if resp, err := request.GetJsonTest(urlVinculaciones, &data); err != nil || resp.StatusCode != http.StatusOK {
 		if err == nil {
 			err = fmt.Errorf("undesired Status Code: %d", resp.StatusCode)
@@ -43,7 +43,7 @@ func GetVinculaciones(vinculaciones *[]models.Vinculacion, query string,
 			err, fmt.Sprint(http.StatusInternalServerError))
 		return
 	}
-	if len(*vinculaciones) == 0 || (*vinculaciones)[0].Id == 0 {
+	if len(*vinculaciones) == 0 || (*vinculaciones)[0].TerceroPrincipalId == nil {
 		*vinculaciones = []models.Vinculacion{}
 	}
 	return
