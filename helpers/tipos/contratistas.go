@@ -116,6 +116,8 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	for _, v := range vinculacionesTerceros {
 		tercerosMap[v.TerceroPrincipalId.Id] = *v.TerceroPrincipalId
 	}
+	// logs.Debug("tercerosMap:", tercerosMap)
+	// logs.Debug("vinculacionesTerceros:", vinculacionesTerceros)
 
 	documentosMap := make(map[int]TercerosCrudModels.DatosIdentificacion)
 	for terceroId := range tercerosMap {
@@ -128,11 +130,15 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 			return
 		}
 		step = "5"
+		// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
 		fin := len(documentosTerceros)
 		for k, v := range documentosTerceros {
 			step = fmt.Sprintf("5.%d/%d", k, fin)
-			documentosMap[v.Id] = v
-			*documentosMap[v.Id].TerceroId = tercerosMap[terceroId]
+			var completo TercerosCrudModels.DatosIdentificacion = v
+			if tercero, ok := tercerosMap[terceroId]; ok {
+				completo.TerceroId = &tercero
+			}
+			documentosMap[v.Id] = completo
 		}
 	}
 

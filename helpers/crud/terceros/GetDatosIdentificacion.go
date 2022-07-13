@@ -26,7 +26,7 @@ func GetDatosIdentificacion(documentos *[]models.DatosIdentificacion, query stri
 		return err
 	}
 	urlDatosIdentificacion += params.Encode()
-	logs.Debug("urlDatosIdentificacion:", urlDatosIdentificacion)
+	// logs.Debug("urlDatosIdentificacion:", urlDatosIdentificacion)
 	var data interface{}
 	if resp, err := request.GetJsonTest(urlDatosIdentificacion, &data); err != nil || resp.StatusCode != http.StatusOK {
 		if err == nil {
