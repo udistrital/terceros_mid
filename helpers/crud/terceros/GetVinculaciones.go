@@ -14,37 +14,37 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-func GetTerceros(terceros *[]models.Tercero, query string,
+func GetVinculaciones(vinculaciones *[]models.Vinculacion, query string,
 	limit, offset int, fields, sortby, order []string) (
 	outputError map[string]interface{}) {
-	const funcion = "GetTerceros - "
+	const funcion = "GetVinculaciones - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "tercero?"
+	urlVinculaciones := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?"
 	params, err := utils.PrepareBeegoQuery(query, fields, sortby, order, limit, offset)
 	if err != nil {
 		return err
 	}
-	urlTerceros += params.Encode()
-	// logs.Debug("urlTerceros:", urlTerceros)
+	urlVinculaciones += params.Encode()
 	var data interface{}
-	if resp, err := request.GetJsonTest(urlTerceros, &data); err != nil || resp.StatusCode != http.StatusOK {
+	// logs.Debug("urlVinculaciones:", urlVinculaciones, "- data:", data)
+	if resp, err := request.GetJsonTest(urlVinculaciones, &data); err != nil || resp.StatusCode != http.StatusOK {
 		if err == nil {
 			err = fmt.Errorf("undesired Status Code: %d", resp.StatusCode)
 		}
 		logs.Error(err)
-		outputError = e.Error(funcion+"request.GetJsonTest(urlTerceros, &tercerosMap)",
+		outputError = e.Error(funcion+"request.GetJsonTest(urlVinculaciones, &tercerosMap)",
 			err, fmt.Sprint(http.StatusBadGateway))
 		return
 	}
-	if err := formatdata.FillStruct(data, &terceros); err != nil {
+	if err := formatdata.FillStruct(data, &vinculaciones); err != nil {
 		logs.Error(err)
 		outputError = e.Error(funcion+"formatdata.FillStruct(data, &terceros)",
 			err, fmt.Sprint(http.StatusInternalServerError))
 		return
 	}
-	if len(*terceros) == 0 || (*terceros)[0].Id == 0 {
-		*terceros = []models.Tercero{}
+	if len(*vinculaciones) == 0 || (*vinculaciones)[0].TerceroPrincipalId == nil {
+		*vinculaciones = []models.Vinculacion{}
 	}
 	return
 }
