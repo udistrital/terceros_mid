@@ -102,6 +102,15 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	if idTercero > 0 {
 		fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
 	}
+
+	// TODO: El siguiente "if" es provisional, queda pendiente hacer consulta cruzada:
+	// - traer documentos tales que el tercero coincida con el query
+	// - traer documentos tales que el documento coincida con el query
+	// - combinar lo anterior (ver proveedores.go)
+	if query != "" {
+		fullQueryVinculaciones += ",TerceroPrincipalId__NombreCompleto__icontains:" + query
+	}
+
 	fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
 	limit := -1
 	offset := 0
