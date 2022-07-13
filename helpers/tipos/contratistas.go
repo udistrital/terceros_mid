@@ -42,6 +42,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	urlParametros += "&fields=Id,CodigoAbreviacion"
 	urlParametros += "&query=Activo:true,TipoParametroId__Activo:true,TipoParametroId__CodigoAbreviacion:" + codigoTipoParamVinculacion
 	// logs.Debug("urlParametros:", urlParametros)
+	step = "1"
 	if resp, err := request.GetJsonTest(urlParametros, &respBody); err == nil && resp.StatusCode == 200 {
 		step = "1.1"
 		if respBody.Data == nil || len(respBody.Data) == 0 || len(respBody.Data[0]) == 0 {
@@ -92,6 +93,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 
 	// vinculacionesMap := make(map[int]models.Vinculacion)
 	var vinculos = []string{}
+	step = "2"
 	for _, id := range parametroContratistaID {
 		vinculos = append(vinculos, fmt.Sprint(id))
 	}
@@ -104,6 +106,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	limit := -1
 	offset := 0
 	fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
+	step = "3"
 	if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
 		outputError = err
 		return
@@ -119,17 +122,24 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 		fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
 		fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
 		var documentosTerceros []TercerosCrudModels.DatosIdentificacion
+		step = "4"
 		if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
 			outputError = err
 			return
 		}
+		step = "5"
+		fin := len(documentosTerceros)
 		for k, v := range documentosTerceros {
-			documentosMap[k] = v
-			*documentosMap[k].TerceroId = tercerosMap[terceroId]
+			step = fmt.Sprintf("5.%d/%d", k, fin)
+			documentosMap[v.Id] = v
+			*documentosMap[v.Id].TerceroId = tercerosMap[terceroId]
 		}
 	}
 
-	for _, v := range documentosMap {
+	current := 1
+	fin := len(documentosMap)
+	for k, v := range documentosMap {
+		step = fmt.Sprint("6.%d/%d(idDoc:%d)", current, fin, k)
 		terceros = append(terceros, map[string]interface{}{
 			"Tercero": map[string]interface{}{
 				"Id":             v.TerceroId.Id,
@@ -145,6 +155,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 				"Numero": v.Numero,
 			},
 		})
+		current++
 	}
 
 	return
