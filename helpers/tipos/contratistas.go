@@ -102,7 +102,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	if idTercero > 0 {
 		fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
 	}
-	fullQueryVinculaciones += "TipoVinculacionId__in:" + strings.Join(vinculos, "|")
+	fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
 	limit := -1
 	offset := 0
 	fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
