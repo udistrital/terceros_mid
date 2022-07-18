@@ -60,7 +60,6 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 
 	// PARTE 2. Traer los terceros que tengan los ID anteriores en la tabla vinculacion
 
-	// vinculacionesMap := make(map[int]models.Vinculacion)
 	var vinculos = []string{}
 	step = "2"
 	for _, id := range parametroContratistaID {
@@ -69,6 +68,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 
 	documentosMap := make(map[int]TercerosCrudModels.DatosIdentificacion)
 	consultar := func(queryTercero, queryDocumento string) {
+		debugStr := fmt.Sprintf("tercero?'%s' - documento?'%s'", queryTercero, queryDocumento)
 		var vinculacionesTerceros []TercerosCrudModels.Vinculacion
 		fullQueryVinculaciones := "Activo:true"
 		if idTercero > 0 {
@@ -81,7 +81,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 		limit := -1
 		offset := 0
 		fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
-		step = "3"
+		step = "3: " + debugStr
 		if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
 			outputError = err
 			return
@@ -91,19 +91,21 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 		for _, v := range vinculacionesTerceros {
 			tercerosMap[v.TerceroPrincipalId.Id] = *v.TerceroPrincipalId
 		}
-		// logs.Debug("tercerosMap:", tercerosMap)
-		// logs.Debug("vinculacionesTerceros:", vinculacionesTerceros)
+		// logs.Debug("tercerosMap:", tercerosMap, "- vinculacionesTerceros:", vinculacionesTerceros)
 
 		for terceroId := range tercerosMap {
 			fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
+			if queryDocumento != "" {
+				fullQueryDocumentos += ",Numero__icontains:" + queryDocumento
+			}
 			fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
 			var documentosTerceros []TercerosCrudModels.DatosIdentificacion
-			step = "4"
+			step = "4: " + debugStr
 			if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
 				outputError = err
 				return
 			}
-			step = "5"
+			step = "5: " + debugStr
 			// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
 			fin := len(documentosTerceros)
 			for k, v := range documentosTerceros {
@@ -116,7 +118,12 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 			}
 		}
 	}
-	consultar("", "")
+	if query != "" {
+		consultar(query, "")
+		consultar("", query)
+	} else {
+		consultar("", "")
+	}
 
 	current := 1
 	fin := len(documentosMap)
