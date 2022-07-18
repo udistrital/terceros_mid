@@ -4,13 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-
+	ParametrosCrudModels "github.com/udistrital/parametros_crud/models"
 	TercerosCrudModels "github.com/udistrital/terceros_crud/models"
+	ParametrosHelper "github.com/udistrital/terceros_mid/helpers/crud/parametros"
 	TercerosHelper "github.com/udistrital/terceros_mid/helpers/crud/terceros"
-	"github.com/udistrital/terceros_mid/models"
-	"github.com/udistrital/utils_oas/request"
 )
 
 // GetContratista trae la lista de contratistas registrados en Terceros, con opción de filtrar por ID
@@ -28,6 +25,8 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 		}
 	}()
 
+	empty := []string{}
+
 	// PARTE 1. Traer los ID de los parámetros asociados a contratistas
 
 	// Los siguientes son los códigos de los registros de la tabla "parametro" de la API
@@ -37,118 +36,93 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	codigoTipoParamVinculacion := "TV"
 	parametroContratistaID := make(map[string]int)
 
-	var respBody models.RespuestaAPI1Arr
-	urlParametros := "http://" + beego.AppConfig.String("parametrosService") + "parametro?limit=-1"
-	urlParametros += "&fields=Id,CodigoAbreviacion"
-	urlParametros += "&query=Activo:true,TipoParametroId__Activo:true,TipoParametroId__CodigoAbreviacion:" + codigoTipoParamVinculacion
-	// logs.Debug("urlParametros:", urlParametros)
+	fieldsParametros := []string{"Id", "CodigoAbreviacion"}
+	queryParametros := "Activo:true,TipoParametroId__Activo:true"
+	queryParametros += ",TipoParametroId__CodigoAbreviacion:" + codigoTipoParamVinculacion
+	// Descomentar la siguiente línea una vez se tenga soporte __in en los queries de parametros_crud...
+	// queryParametros += ",CodigoAbreviacion__in:" + strings.Join(codigosParametroContratista, "|")
+	var parametros []ParametrosCrudModels.Parametro
 	step = "1"
-	if resp, err := request.GetJsonTest(urlParametros, &respBody); err == nil && resp.StatusCode == 200 {
-		step = "1.1"
-		if respBody.Data == nil || len(respBody.Data) == 0 || len(respBody.Data[0]) == 0 {
-			err := fmt.Errorf("No están registrados los parámetros asociados a contratistas")
-			logs.Error(err)
-			outputError = map[string]interface{}{
-				"funcion": "GetContratista - respBody.Data == nil || len(respBody.Data) == 0 || len(respBody.Data[0]) == 0",
-				"err":     err,
-				"status":  "502",
-			}
-			return nil, outputError
-		}
-		step = "1.2"
-		for _, paramVinculacion := range respBody.Data {
-			// fmt.Printf("Param #%d: %#v\n", k, paramVinculacion)
-			var codParam string
-			if v, ok := paramVinculacion["CodigoAbreviacion"].(string); ok {
-				codParam = v
-			} else {
-				continue
-			}
-			// fmt.Printf("codParam (%T): %v\n", codParam, codParam)
-			for _, codigoContratista := range codigosParametroContratista {
-				if id, ok := paramVinculacion["Id"].(float64); ok && codigoContratista == codParam {
-					// fmt.Printf("P=P %v - T(id):%T - v:%f\n", paramVinculacion, paramVinculacion["Id"], paramVinculacion["Id"])
-					parametroContratistaID[codigoContratista] = int(id)
-					break
-				}
+	if outputError = ParametrosHelper.GetParametros(&parametros,
+		queryParametros, -1, 0, fieldsParametros, empty, empty); outputError != nil {
+		return
+	}
+	// ... y así se podría eliminar/reducir lo siguiente:
+	for _, parametro := range parametros {
+		for _, codigoContratista := range codigosParametroContratista {
+			if parametro.CodigoAbreviacion == codigoContratista {
+				parametroContratistaID[codigoContratista] = parametro.Id
+				break
 			}
 		}
-		step = "1.3"
-	} else {
-		if err == nil {
-			err = fmt.Errorf("Undesired status code - Got:%d", resp.StatusCode)
-		}
-		logs.Error(err)
-		outputError = map[string]interface{}{
-			"funcion": "GetContratista - request.GetJsonTest(urlParametros, &respBody)",
-			"err":     err,
-			"status":  "502",
-		}
-		return nil, outputError
 	}
 	// logs.Debug("parametroContratistaID:", parametroContratistaID)
 
 	// PARTE 2. Traer los terceros que tengan los ID anteriores en la tabla vinculacion
-	empty := []string{}
 
-	// vinculacionesMap := make(map[int]models.Vinculacion)
 	var vinculos = []string{}
 	step = "2"
 	for _, id := range parametroContratistaID {
 		vinculos = append(vinculos, fmt.Sprint(id))
 	}
-	var vinculacionesTerceros []TercerosCrudModels.Vinculacion
-	fullQueryVinculaciones := "Activo:true"
-	if idTercero > 0 {
-		fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
-	}
-
-	// TODO: El siguiente "if" es provisional, queda pendiente hacer consulta cruzada:
-	// - traer documentos tales que el tercero coincida con el query
-	// - traer documentos tales que el documento coincida con el query
-	// - combinar lo anterior (ver proveedores.go)
-	if query != "" {
-		fullQueryVinculaciones += ",TerceroPrincipalId__NombreCompleto__icontains:" + query
-	}
-
-	fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
-	limit := -1
-	offset := 0
-	fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
-	step = "3"
-	if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
-		outputError = err
-		return
-	}
-
-	tercerosMap := make(map[int]TercerosCrudModels.Tercero)
-	for _, v := range vinculacionesTerceros {
-		tercerosMap[v.TerceroPrincipalId.Id] = *v.TerceroPrincipalId
-	}
-	// logs.Debug("tercerosMap:", tercerosMap)
-	// logs.Debug("vinculacionesTerceros:", vinculacionesTerceros)
 
 	documentosMap := make(map[int]TercerosCrudModels.DatosIdentificacion)
-	for terceroId := range tercerosMap {
-		fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
-		fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
-		var documentosTerceros []TercerosCrudModels.DatosIdentificacion
-		step = "4"
-		if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
+	consultar := func(queryTercero, queryDocumento string) {
+		debugStr := fmt.Sprintf("tercero?'%s' - documento?'%s'", queryTercero, queryDocumento)
+		var vinculacionesTerceros []TercerosCrudModels.Vinculacion
+		fullQueryVinculaciones := "Activo:true"
+		if idTercero > 0 {
+			fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
+		}
+		if queryTercero != "" {
+			fullQueryVinculaciones += ",TerceroPrincipalId__NombreCompleto__icontains:" + queryTercero
+		}
+		fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
+		limit := -1
+		offset := 0
+		fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
+		step = "3: " + debugStr
+		if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
 			outputError = err
 			return
 		}
-		step = "5"
-		// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
-		fin := len(documentosTerceros)
-		for k, v := range documentosTerceros {
-			step = fmt.Sprintf("5.%d/%d", k, fin)
-			var completo TercerosCrudModels.DatosIdentificacion = v
-			if tercero, ok := tercerosMap[terceroId]; ok {
-				completo.TerceroId = &tercero
-			}
-			documentosMap[v.Id] = completo
+
+		tercerosMap := make(map[int]TercerosCrudModels.Tercero)
+		for _, v := range vinculacionesTerceros {
+			tercerosMap[v.TerceroPrincipalId.Id] = *v.TerceroPrincipalId
 		}
+		// logs.Debug("tercerosMap:", tercerosMap, "- vinculacionesTerceros:", vinculacionesTerceros)
+
+		for terceroId := range tercerosMap {
+			fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
+			if queryDocumento != "" {
+				fullQueryDocumentos += ",Numero__icontains:" + queryDocumento
+			}
+			fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
+			var documentosTerceros []TercerosCrudModels.DatosIdentificacion
+			step = "4: " + debugStr
+			if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
+				outputError = err
+				return
+			}
+			step = "5: " + debugStr
+			// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
+			fin := len(documentosTerceros)
+			for k, v := range documentosTerceros {
+				step = fmt.Sprintf("5.%d/%d", k, fin)
+				var completo TercerosCrudModels.DatosIdentificacion = v
+				if tercero, ok := tercerosMap[terceroId]; ok {
+					completo.TerceroId = &tercero
+				}
+				documentosMap[v.Id] = completo
+			}
+		}
+	}
+	if query != "" {
+		consultar(query, "")
+		consultar("", query)
+	} else {
+		consultar("", "")
 	}
 
 	current := 1

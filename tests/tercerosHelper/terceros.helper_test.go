@@ -29,7 +29,8 @@ func TestMain(m *testing.M) {
 // TestGetContratista ...
 func TestGetContratista(t *testing.T) {
 
-	if valor, err := tipos.GetContratista(9825); err != nil {
+	testStr := "perez"
+	if valor, err := tipos.GetContratista(9825, testStr); err != nil {
 		t.Error("No se pudo consultar el contratista", err)
 		t.Fail()
 	} else {
@@ -41,7 +42,8 @@ func TestGetContratista(t *testing.T) {
 // TestGetFuncionariosPlanta ...
 func TestGetFuncionariosPlanta(t *testing.T) {
 
-	if valor, err := tipos.GetFuncionariosPlanta(9801); err != nil {
+	testStr := "perez"
+	if valor, err := tipos.GetFuncionariosPlanta(9801, testStr); err != nil {
 		t.Error("No se pudo consultar el funcionario", err)
 		t.Fail()
 	} else {
@@ -53,7 +55,8 @@ func TestGetFuncionariosPlanta(t *testing.T) {
 // TestGetFuncionariosPlanta ...
 func TestGetOrdenadores(t *testing.T) {
 
-	if valor, err := tipos.GetOrdenadores(9804); err != nil {
+	testStr := "perez"
+	if valor, err := tipos.GetOrdenadores(9804, testStr); err != nil {
 		t.Error("No se pudo consultar el ordenador", err)
 		t.Fail()
 	} else {
@@ -65,7 +68,8 @@ func TestGetOrdenadores(t *testing.T) {
 // TestGetFuncionariosPlanta ...
 func TestGetProveedor(t *testing.T) {
 
-	if valor, err := tipos.GetProveedor(9769); err != nil {
+	testStr := "perez"
+	if valor, err := tipos.GetProveedor(9769, testStr); err != nil {
 		t.Error("No se pudo consultar el proveedor", err)
 		t.Fail()
 	} else {

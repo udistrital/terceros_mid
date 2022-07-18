@@ -417,6 +417,8 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/syndtr/goleveldb v0.0.0-20160425020131-cfa635847112/go.mod h1:Z4AUp2Km+PwemOoO/VB5AOx9XSsIItzFjoJlOSiYmn0=
 github.com/syndtr/goleveldb v0.0.0-20181127023241-353a9fca669c/go.mod h1:Z4AUp2Km+PwemOoO/VB5AOx9XSsIItzFjoJlOSiYmn0=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
+github.com/udistrital/parametros_crud v0.0.1 h1:i0AzmG9Dp4gekdPQAIoiB0BUX0ExBo4n76uvzvBOA/M=
+github.com/udistrital/parametros_crud v0.0.1/go.mod h1:ae/alo0HYhBOXz8e3C01EX/1ujFhxIoHpM6u7BUzvlw=
 github.com/udistrital/terceros_crud v0.0.0-20220428201646-505c772df01e h1:MXZrS9JN9b4X2aI7IpBMbBUUvxEhRhO/wNYr6j6WrXE=
 github.com/udistrital/terceros_crud v0.0.0-20220428201646-505c772df01e/go.mod h1:lvpZjXVGGWbMH+OF6Ktjh/Dt1O73DwohlopdJ243oXI=
 github.com/udistrital/utils_oas v0.0.0-20210421184521-1d702419e42a/go.mod h1:ctr3PgpZazF32ukxlLZP3AVjq8b2zaZ4beG4cqkx5ZA=
