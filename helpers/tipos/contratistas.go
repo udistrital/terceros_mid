@@ -66,59 +66,57 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	for _, id := range parametroContratistaID {
 		vinculos = append(vinculos, fmt.Sprint(id))
 	}
-	var vinculacionesTerceros []TercerosCrudModels.Vinculacion
-	fullQueryVinculaciones := "Activo:true"
-	if idTercero > 0 {
-		fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
-	}
-
-	// TODO: El siguiente "if" es provisional, queda pendiente hacer consulta cruzada:
-	// - traer documentos tales que el tercero coincida con el query
-	// - traer documentos tales que el documento coincida con el query
-	// - combinar lo anterior (ver proveedores.go)
-	if query != "" {
-		fullQueryVinculaciones += ",TerceroPrincipalId__NombreCompleto__icontains:" + query
-	}
-
-	fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
-	limit := -1
-	offset := 0
-	fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
-	step = "3"
-	if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
-		outputError = err
-		return
-	}
-
-	tercerosMap := make(map[int]TercerosCrudModels.Tercero)
-	for _, v := range vinculacionesTerceros {
-		tercerosMap[v.TerceroPrincipalId.Id] = *v.TerceroPrincipalId
-	}
-	// logs.Debug("tercerosMap:", tercerosMap)
-	// logs.Debug("vinculacionesTerceros:", vinculacionesTerceros)
 
 	documentosMap := make(map[int]TercerosCrudModels.DatosIdentificacion)
-	for terceroId := range tercerosMap {
-		fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
-		fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
-		var documentosTerceros []TercerosCrudModels.DatosIdentificacion
-		step = "4"
-		if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
+	consultar := func(queryTercero, queryDocumento string) {
+		var vinculacionesTerceros []TercerosCrudModels.Vinculacion
+		fullQueryVinculaciones := "Activo:true"
+		if idTercero > 0 {
+			fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
+		}
+		if queryTercero != "" {
+			fullQueryVinculaciones += ",TerceroPrincipalId__NombreCompleto__icontains:" + queryTercero
+		}
+		fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
+		limit := -1
+		offset := 0
+		fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
+		step = "3"
+		if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
 			outputError = err
 			return
 		}
-		step = "5"
-		// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
-		fin := len(documentosTerceros)
-		for k, v := range documentosTerceros {
-			step = fmt.Sprintf("5.%d/%d", k, fin)
-			var completo TercerosCrudModels.DatosIdentificacion = v
-			if tercero, ok := tercerosMap[terceroId]; ok {
-				completo.TerceroId = &tercero
+
+		tercerosMap := make(map[int]TercerosCrudModels.Tercero)
+		for _, v := range vinculacionesTerceros {
+			tercerosMap[v.TerceroPrincipalId.Id] = *v.TerceroPrincipalId
+		}
+		// logs.Debug("tercerosMap:", tercerosMap)
+		// logs.Debug("vinculacionesTerceros:", vinculacionesTerceros)
+
+		for terceroId := range tercerosMap {
+			fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
+			fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
+			var documentosTerceros []TercerosCrudModels.DatosIdentificacion
+			step = "4"
+			if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
+				outputError = err
+				return
 			}
-			documentosMap[v.Id] = completo
+			step = "5"
+			// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
+			fin := len(documentosTerceros)
+			for k, v := range documentosTerceros {
+				step = fmt.Sprintf("5.%d/%d", k, fin)
+				var completo TercerosCrudModels.DatosIdentificacion = v
+				if tercero, ok := tercerosMap[terceroId]; ok {
+					completo.TerceroId = &tercero
+				}
+				documentosMap[v.Id] = completo
+			}
 		}
 	}
+	consultar("", "")
 
 	current := 1
 	fin := len(documentosMap)
