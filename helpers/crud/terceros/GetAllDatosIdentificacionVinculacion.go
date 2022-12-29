@@ -3,6 +3,7 @@ package terceros
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -19,7 +20,7 @@ func GetAllDatosIdentificacionVinculacion(documentos *[]map[string]interface{}, 
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
 	urlcrud := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion/identificacion?" +
-		"query=" + query + "&vinculaciones=" + vinculaciones
+		"query=" + url.QueryEscape(query) + "&vinculaciones=" + vinculaciones
 
 	var data interface{}
 	if resp, err := request.GetJsonTest(urlcrud, &data); err != nil || resp.StatusCode != http.StatusOK {
