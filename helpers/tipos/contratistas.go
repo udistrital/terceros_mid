@@ -2,6 +2,7 @@ package tipos
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	ParametrosCrudModels "github.com/udistrital/parametros_crud/models"
@@ -34,7 +35,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	// Específicamente, los códigos de parámetros que se asignen a contratistas
 	codigosParametroContratista := []string{"CPS"} // , "OPS", "PS"
 	codigoTipoParamVinculacion := "TV"
-	parametroContratistaID := make(map[string]int)
+	var parametroContratistaID []string
 
 	fieldsParametros := []string{"Id", "CodigoAbreviacion"}
 	queryParametros := "Activo:true,TipoParametroId__Activo:true"
@@ -51,7 +52,7 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	for _, parametro := range parametros {
 		for _, codigoContratista := range codigosParametroContratista {
 			if parametro.CodigoAbreviacion == codigoContratista {
-				parametroContratistaID[codigoContratista] = parametro.Id
+				parametroContratistaID = append(parametroContratistaID, strconv.Itoa(parametro.Id))
 				break
 			}
 		}
@@ -67,21 +68,17 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 	}
 
 	documentosMap := make(map[int]TercerosCrudModels.DatosIdentificacion)
-	consultar := func(queryTercero, queryDocumento string) {
-		debugStr := fmt.Sprintf("tercero?'%s' - documento?'%s'", queryTercero, queryDocumento)
+	consultar := func() {
 		var vinculacionesTerceros []TercerosCrudModels.Vinculacion
 		fullQueryVinculaciones := "Activo:true"
 		if idTercero > 0 {
 			fullQueryVinculaciones += ",TerceroPrincipalId:" + fmt.Sprint(idTercero)
 		}
-		if queryTercero != "" {
-			fullQueryVinculaciones += ",TerceroPrincipalId__NombreCompleto__icontains:" + queryTercero
-		}
 		fullQueryVinculaciones += ",TipoVinculacionId__in:" + strings.Join(vinculos, "|")
 		limit := -1
 		offset := 0
 		fieldsVinculaciones := []string{"Id", "TerceroPrincipalId"}
-		step = "3: " + debugStr
+		step = "3"
 		if err := TercerosHelper.GetVinculaciones(&vinculacionesTerceros, fullQueryVinculaciones, limit, offset, fieldsVinculaciones, empty, empty); err != nil {
 			outputError = err
 			return
@@ -95,17 +92,14 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 
 		for terceroId := range tercerosMap {
 			fullQueryDocumentos := "Activo:true,TerceroId__Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
-			if queryDocumento != "" {
-				fullQueryDocumentos += ",Numero__icontains:" + queryDocumento
-			}
 			fieldsDocumentos := []string{"Id", "TipoDocumentoId", "Numero"}
 			var documentosTerceros []TercerosCrudModels.DatosIdentificacion
-			step = "4: " + debugStr
+			step = "4"
 			if err := TercerosHelper.GetDatosIdentificacion(&documentosTerceros, fullQueryDocumentos, limit, offset, fieldsDocumentos, empty, empty); err != nil {
 				outputError = err
 				return
 			}
-			step = "5: " + debugStr
+			step = "5"
 			// logs.Debug("documentosTerceros:", fmt.Sprintf("%+v", documentosTerceros))
 			fin := len(documentosTerceros)
 			for k, v := range documentosTerceros {
@@ -118,34 +112,31 @@ func GetContratista(idTercero int, query string) (terceros []map[string]interfac
 			}
 		}
 	}
-	if query != "" {
-		consultar(query, "")
-		consultar("", query)
-	} else {
-		consultar("", "")
-	}
 
-	current := 1
-	fin := len(documentosMap)
-	for k, v := range documentosMap {
-		step = fmt.Sprint("6.%d/%d(idDoc:%d)", current, fin, k)
-		terceros = append(terceros, map[string]interface{}{
-			"Tercero": map[string]interface{}{
-				"Id":             v.TerceroId.Id,
-				"NombreCompleto": v.TerceroId.NombreCompleto,
-				// "UsuarioWSO2":    vincul.TerceroPrincipalId.UsuarioWSO2,
-			},
-			"Identificacion": map[string]interface{}{
-				// "TipoDocumentoId": dataModel.TipoDocumentoId,
-				"TipoDocumentoId": map[string]interface{}{
-					"Id":                v.TipoDocumentoId.Id,
-					"Nombre":            v.TipoDocumentoId.Nombre, // TODO: Revisar otras APIs y eliminar este campo
-					"CodigoAbreviacion": v.TipoDocumentoId.CodigoAbreviacion,
+	if idTercero > 0 {
+		consultar()
+		current := 1
+		fin := len(documentosMap)
+		for k, v := range documentosMap {
+			step = fmt.Sprint("6.%d/%d(idDoc:%d)", current, fin, k)
+			terceros = append(terceros, map[string]interface{}{
+				"Tercero": map[string]interface{}{
+					"Id":             v.TerceroId.Id,
+					"NombreCompleto": v.TerceroId.NombreCompleto,
 				},
-				"Numero": v.Numero,
-			},
-		})
-		current++
+				"Identificacion": map[string]interface{}{
+					"Numero":             v.Numero,
+					"DigitoVerificacion": v.DigitoVerificacion,
+					"TipoDocumentoId": map[string]interface{}{
+						"CodigoAbreviacion": v.TipoDocumentoId.CodigoAbreviacion,
+					},
+				},
+			})
+			current++
+		}
+	} else if len(query) > 0 {
+		vinculaciones_ := strings.Join(parametroContratistaID, ",")
+		outputError = TercerosHelper.GetAllDatosIdentificacionVinculacion(&terceros, query, vinculaciones_)
 	}
 
 	return
