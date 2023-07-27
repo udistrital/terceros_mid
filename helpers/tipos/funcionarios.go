@@ -31,7 +31,7 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 	// Los siguientes son los códigos de los registros de la tabla "parametro" de la API
 	// de parámetros, cuyo tipo_parámetro_id sea el asociado a Cargos.
 	// Específicamente, los códigos de parámetros que se asignen a funcionarios
-	codigosParametroFuncionarios := []string{"DP", "AP", "DCTC", "DCMT", "A", "AS", "E", "D", "EP", "T", "O", "JO"}
+	codigosParametroFuncionarios := []string{"P", "AP", "DCTC", "DCMT", "A", "O", "TO", "PD", "PA", "DP", "AS", "E", "D", "EP", "PU", "T"}
 	codigoTipoParamVinculacion := "TV"
 
 	fieldsParametros := []string{"Id", "CodigoAbreviacion"}
