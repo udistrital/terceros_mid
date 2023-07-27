@@ -3,6 +3,7 @@ package terceros
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/astaxie/beego"
@@ -60,6 +61,7 @@ func GetTrVinculacionIdentificacion(compuesto, vinculaciones, cargos, dependenci
 
 	parametros := []string{}
 	if compuesto != "" {
+		compuesto = url.QueryEscape(compuesto)
 		parametros = append(parametros, "query="+compuesto)
 	}
 
