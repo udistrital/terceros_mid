@@ -23,7 +23,7 @@ func GetCargo(idTercero string) (cargo []map[string]interface{}, outputError map
 	// PARTE 1. Consultar el tercero con el Id
 	// Se obtiene el CargoId del tercero en la tabla vinculacion
 	var idCargo []map[string]interface{}
-	urlVinculacion := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=1"
+	urlVinculacion := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=1"
 	urlVinculacion += "&fields=CargoId&sortby=Id&order=desc"
 	urlVinculacion += "&query=Activo%3Atrue,TerceroPrincipalId%3A" + idTercero
 
@@ -56,7 +56,7 @@ func GetCargo(idTercero string) (cargo []map[string]interface{}, outputError map
 	// PARTE 2. Se consulta el CargoId en el api parametros_crud
 
 	var parametro map[string]interface{}
-	urlParametro := "http://" + beego.AppConfig.String("parametrosService") + "parametro/" + fmt.Sprintf("%v", idCargo[0]["CargoId"])
+	urlParametro := "http://" + beego.AppConfig.String("ParametroService") + "parametro/" + fmt.Sprintf("%v", idCargo[0]["CargoId"])
 	if resp, err := request.GetJsonTest(urlParametro, &parametro); err == nil && resp.StatusCode == 200 {
 		if len(parametro) == 0 {
 			err := fmt.Errorf("No existe el parametro con el id " + fmt.Sprintf("%v", idCargo[0]["CargoId"]))
