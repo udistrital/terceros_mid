@@ -1,30 +1,24 @@
 package tipos
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
+	"strings"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/mitchellh/mapstructure"
-
-	"github.com/udistrital/terceros_mid/helpers/propiedades"
-	"github.com/udistrital/terceros_mid/models"
-	e "github.com/udistrital/utils_oas/errorctrl"
-	"github.com/udistrital/utils_oas/request"
+	ParametrosCrudModels "github.com/udistrital/parametros_crud/models"
+	ParametrosHelper "github.com/udistrital/terceros_mid/helpers/crud/parametros"
+	TercerosHelper "github.com/udistrital/terceros_mid/helpers/crud/terceros"
 )
 
 // GetFuncionarios trae los terceros que tienen un registro en la tabla vinculacion del api terceros_crud
 func GetFuncionarios(idTercero int, query string) (terceros []map[string]interface{}, outputError map[string]interface{}) {
 	const funcion = "GetFuncionarios - "
-
+	step := "0"
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
-				"funcion": "GetFuncionarios - Uncaught Error!",
+				"funcion": funcion + "uncaught error after step:" + step,
 				"err":     err,
-				"status":  "500", // Error no manejado!
+				"status":  "500", // Uncaught error!
 			}
 			panic(outputError)
 		}
@@ -97,44 +91,20 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 	// fmt.Println("#terceros:", len(terceros))
 
 	// PARTE 3 - Agregar Información complementaria de Sede y Dependencia (si la hay)
+	empty := []string{}
 
-	var sedesDependencias []models.AsignacionEspacioFisicoDependencia
-	for _, tercero := range terceros {
-		// fmt.Println("k:", k, "tercero:", tercero)
+	// PARTE 1. Traer los ID de los parámetros asociados a funcionarios
 
-		// 3.1 traer los registros necesarios/disponibles
-		var terceroModelo models.Tercero
-		if err := mapstructure.Decode(tercero["Tercero"], &terceroModelo); err != nil {
-			logs.Error(err)
-			outputError = map[string]interface{}{
-				"funcion": "GetContratista - mapstructure.Decode(tercero[\"Tercero\"], &terceroModelo)",
-				"err":     err,
-				"status":  "500",
-			}
-			return nil, outputError
-		} else {
-			if identificacion, err := propiedades.GetDocumento(fmt.Sprint(terceroModelo.Id)); err != nil && len(identificacion) > 0 {
-				logs.Error(err)
-				outputError = map[string]interface{}{
-					"funcion": "GetContratista - mapstructure.Decode(tercero[\"Tercero\"], &terceroModelo)",
-					"err":     err,
-					"status":  "500",
-				}
-				return nil, outputError
-			} else {
-				if len(identificacion) > 0 {
-					tercero["Identificacion"] = identificacion[0]
-				}
-			}
-		}
+	// Los siguientes son los códigos de los registros de la tabla "parametro" de la API
+	// de parámetros, cuyo tipo_parámetro_id sea el asociado a Cargos.
+	// Específicamente, los códigos de parámetros que se asignen a funcionarios
+	codigosParametroFuncionarios := []string{"P", "AP", "DCTC", "DCMT", "A", "O", "TO", "PD", "PA", "DP", "AS", "E", "D", "EP", "PU", "T"}
+	codigoTipoParamVinculacion := "TV"
 
-		consultar := true
-		for _, seDependencia := range sedesDependencias {
-			if seDependencia.DependenciaId.Id == tercero["Dependencia"] {
-				consultar = false
-			}
-		}
-		if consultar {
+	fieldsParametros := []string{"Id", "CodigoAbreviacion"}
+	queryParametros := "Activo:true,TipoParametroId__Activo:true"
+	queryParametros += ",TipoParametroId__CodigoAbreviacion:" + codigoTipoParamVinculacion
+	queryParametros += ",CodigoAbreviacion__in:" + strings.Join(codigosParametroFuncionarios, "|")
 
 			var resBody []models.AsignacionEspacioFisicoDependencia
 			urlOikos := "http://" + beego.AppConfig.String("OikosService") + "asignacion_espacio_fisico_dependencia?limit=-1"
@@ -142,39 +112,22 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 			urlOikos += ",EspacioFisicoId__TipoEspacioFisicoId__CodigoAbreviacion:Tipo_1"
 			urlOikos += ",DependenciaId__Id:" + fmt.Sprint(tercero["DependenciaId"])
 			if resp, err := request.GetJsonTest(urlOikos, &resBody); err == nil && resp.StatusCode == 200 {
+	var parametros []ParametrosCrudModels.Parametro
+	step = "1"
 
-				if len(resBody) == 0 || resBody[0].Id == 0 {
-					// No se encontró relación sede-dependencia para el tercero actual
-					continue
-				}
-
-				for _, v := range resBody {
-					sedesDependencias = append(sedesDependencias, v)
-				}
-
-			} else {
-				if err == nil {
-					err = fmt.Errorf("Undesired status code - Got:%d", resp.StatusCode)
-				}
-				logs.Error(err)
-				outputError = map[string]interface{}{
-					"funcion": "/GetFuncionarios - request.GetJsonTest(urlOikos, &resBody)",
-					"err":     err,
-					"status":  "502",
-				}
-				return nil, outputError
-			}
-		}
-
-		// 3.2 asignar la información disponible
-		for _, seDep := range sedesDependencias {
-			if tercero["DependenciaId"] == seDep.DependenciaId.Id {
-				tercero["Sede"] = seDep.EspacioFisicoId
-				tercero["Dependencia"] = seDep.DependenciaId
-				break
-			}
-		}
+	outputError = ParametrosHelper.GetParametros(&parametros, queryParametros, -1, 0, fieldsParametros, empty, empty)
+	if outputError != nil {
+		return
 	}
 
-	return terceros, nil
+	var vinculos = []string{}
+	step = "2"
+	for _, parametro := range parametros {
+		vinculos = append(vinculos, fmt.Sprint(parametro.Id))
+	}
+
+	terceros, outputError = TercerosHelper.GetTrVinculacionIdentificacion(query, strings.Join(vinculos, ","), "", "")
+
+	return
+
 }

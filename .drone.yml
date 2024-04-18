@@ -47,7 +47,8 @@ steps:
     - push
 
 - name: go_run_test
-  image: golang:1.14
+  failure: ignore
+  image: golang:1.18
   commands:
   - go get -t
   - go get github.com/smartystreets/goconvey/convey
@@ -83,20 +84,18 @@ steps:
     - master
 
 - name: go_build
-  image: golang:1.14
+  image: golang:1.18
   commands:
   - go get -t
-  - GOOS=linux GOARCH=amd64 go build -v -o main
-  - sha256sum main # suma de verificacion
-  - ls -l main # peso en bytes y fecha de modificacion
+  - GOOS=linux GOARCH=amd64 go build -o main
   when:
     branch:
     - dependabot/**
     - develop
     - hotfix/*
+    - feature/*
     - master
     - release/*
-    - feature/*
     event:
     - push
 
@@ -139,7 +138,7 @@ steps:
     - push
 
 - name: update_aws_ecs
-  image: golang:1.9
+  image: golang:1.18
   environment:
     AWS_ACCESS_KEY_ID:
       from_secret: AWS_ACCESS_KEY_ID

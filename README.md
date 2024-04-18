@@ -65,9 +65,9 @@ go test
 
 ## Estado CI
 
-| Develop | Release 1.1.0 | Master |
+| Develop | Release 1.1.1 | Master |
 | -- | -- | -- |
-| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/release/1.1.0)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/master)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) |
+| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/release/1.1.1)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/terceros_mid/status.svg?ref=refs/heads/master)](https://hubci.portaloas.udistrital.edu.co/udistrital/terceros_mid) |
 
 ## Licencia
 
