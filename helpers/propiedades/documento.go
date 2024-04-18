@@ -24,7 +24,7 @@ func GetDocumento(terceroId string) (documentos []map[string]interface{}, output
 	}()
 
 	var dataTerceros []map[string]interface{}
-	urlDocTercero := "http://" + beego.AppConfig.String("tercerosService") + "datos_identificacion"
+	urlDocTercero := "http://" + beego.AppConfig.String("TercerosService") + "datos_identificacion"
 	urlDocTercero += "?sortby=Id&order=desc&fields=TipoDocumentoId,Numero"
 	urlDocTercero += "&query=Activo:true,TerceroId__Id:" + fmt.Sprint(terceroId)
 	// logs.Debug("urlDocTercero: ", urlDocTercero)

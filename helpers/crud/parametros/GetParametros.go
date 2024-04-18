@@ -19,7 +19,7 @@ func GetParametros(parametros *[]models.Parametro, query string,
 	const funcion = "GetParametros - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlParametros := "http://" + beego.AppConfig.String("parametrosService") + "parametro?"
+	urlParametros := "http://" + beego.AppConfig.String("ParametroService") + "parametro?"
 	params, err := utils.PrepareBeegoQuery(query, fields, sortby, order, limit, offset)
 	if err != nil {
 		return err

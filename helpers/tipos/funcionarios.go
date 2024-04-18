@@ -36,7 +36,7 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 	}
 
 	var vinculaciones []models.Vinculacion
-	urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=-1"
+	urlTerceros := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
 	urlTerceros += "&fields=Id,TerceroPrincipalId,TipoVinculacionId,DependenciaId"
 	urlTerceros += "&query=Activo:true"
 	if idTercero > 0 {
@@ -46,7 +46,7 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 
 		if len(vinculaciones) == 0 || vinculaciones[0].TerceroPrincipalId == nil {
 			var tercero models.Tercero
-			urlTerceros = "http://" + beego.AppConfig.String("tercerosService") + "tercero/" + fmt.Sprint(idTercero)
+			urlTerceros = "http://" + beego.AppConfig.String("TercerosService") + "tercero/" + fmt.Sprint(idTercero)
 			if resp, err := request.GetJsonTest(urlTerceros, &tercero); err == nil && resp.StatusCode == 200 {
 				terceros = append(terceros, map[string]interface{}{
 					"Tercero": tercero,
@@ -137,7 +137,7 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 		if consultar {
 
 			var resBody []models.AsignacionEspacioFisicoDependencia
-			urlOikos := "http://" + beego.AppConfig.String("oikos2Service") + "asignacion_espacio_fisico_dependencia?limit=-1"
+			urlOikos := "http://" + beego.AppConfig.String("OikosService") + "asignacion_espacio_fisico_dependencia?limit=-1"
 			urlOikos += "&fields=Id,EspacioFisicoId,DependenciaId&query=Activo:true"
 			urlOikos += ",EspacioFisicoId__TipoEspacioFisicoId__CodigoAbreviacion:Tipo_1"
 			urlOikos += ",DependenciaId__Id:" + fmt.Sprint(tercero["DependenciaId"])

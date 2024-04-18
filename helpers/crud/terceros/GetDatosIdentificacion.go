@@ -20,7 +20,7 @@ func GetDatosIdentificacion(documentos *[]models.DatosIdentificacion, query stri
 	const funcion = "GetDatosIdentificacion - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlDatosIdentificacion := "http://" + beego.AppConfig.String("tercerosService") + "datos_identificacion?"
+	urlDatosIdentificacion := "http://" + beego.AppConfig.String("TercerosService") + "datos_identificacion?"
 	params, err := utils.PrepareBeegoQuery(query, fields, sortby, order, limit, offset)
 	if err != nil {
 		return err

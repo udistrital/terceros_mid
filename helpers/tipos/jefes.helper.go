@@ -42,7 +42,7 @@ func GetOrdenadores(idTercero int, query string) (terceros []map[string]interfac
 	parametroCargoID := make(map[string]int)
 
 	var respBody models.RespuestaAPI1Arr
-	urlParametros := "http://" + beego.AppConfig.String("parametrosService") + "parametro?limit=-1"
+	urlParametros := "http://" + beego.AppConfig.String("ParametroService") + "parametro?limit=-1"
 	urlParametros += "&fields=Id,CodigoAbreviacion"
 	urlParametros += "&query=Activo:true,TipoParametroId__CodigoAbreviacion:" + CodigoTipoParamCargo
 	urlParametros += ",TipoParametroId__AreaTipoId__CodigoAbreviacion:" + CodigoAreaTipo
@@ -83,7 +83,7 @@ func GetOrdenadores(idTercero int, query string) (terceros []map[string]interfac
 	for _, paramID := range parametroCargoID {
 
 		var vinculaciones []models.Vinculacion
-		urlTerceros := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=-1"
+		urlTerceros := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
 		urlTerceros += "&fields=Id,TerceroPrincipalId,DependenciaId,CargoId"
 		urlTerceros += "&query=Activo:true,CargoId:" + fmt.Sprint(paramID)
 		if idTercero > 0 {

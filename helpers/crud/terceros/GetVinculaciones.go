@@ -20,7 +20,7 @@ func GetVinculaciones(vinculaciones *[]models.Vinculacion, query string,
 	const funcion = "GetVinculaciones - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlVinculaciones := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?"
+	urlVinculaciones := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?"
 	params, err := utils.PrepareBeegoQuery(query, fields, sortby, order, limit, offset)
 	if err != nil {
 		return err
