@@ -17,11 +17,11 @@ var parameters struct {
 
 func TestMain(m *testing.M) {
 	parameters.PARAMETROS_CRUD = os.Getenv("PARAMETROS_CRUD")
-	beego.AppConfig.Set("parametrosService", parameters.PARAMETROS_CRUD)
+	beego.AppConfig.Set("ParametroService", parameters.PARAMETROS_CRUD)
 	parameters.TERCEROS_SERVICE = os.Getenv("TERCEROS_SERVICE")
-	beego.AppConfig.Set("tercerosService", parameters.TERCEROS_SERVICE)
+	beego.AppConfig.Set("TercerosService", parameters.TERCEROS_SERVICE)
 	parameters.OIKOS2_CRUD = os.Getenv("OIKOS2_CRUD")
-	beego.AppConfig.Set("oikos2Service", parameters.OIKOS2_CRUD)
+	beego.AppConfig.Set("OikosService", parameters.OIKOS2_CRUD)
 	flag.Parse()
 	os.Exit(m.Run())
 }
@@ -91,10 +91,10 @@ func TestGetTipos(t *testing.T) {
 }
 
 func TestEndPointParametrosService(t *testing.T) {
-	t.Log("Testing EndPoint parametrosService")
+	t.Log("Testing EndPoint ParametroService")
 	t.Log(parameters.PARAMETROS_CRUD)
-	t.Log("Testing EndPoint tercerosService")
+	t.Log("Testing EndPoint TercerosService")
 	t.Log(parameters.TERCEROS_SERVICE)
-	t.Log("Testing EndPoint oikos2Service")
+	t.Log("Testing EndPoint OikosService")
 	t.Log(parameters.OIKOS2_CRUD)
 }

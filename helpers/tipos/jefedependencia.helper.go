@@ -37,16 +37,16 @@ func GetJefeDependencia(dependenciaId int, query string) (jefeDependencia []map[
 	var tercero models.Vinculacion
 	var respParam models.RespuestaAPI1Obj
 
-	url := "http://" + beego.AppConfig.String("oikos2Service") + "dependencia/" + fmt.Sprint(dependenciaId)
+	url := "http://" + beego.AppConfig.String("OikosService") + "dependencia/" + fmt.Sprint(dependenciaId)
 	if resp, err := request.GetJsonTest(url, &dependencia); err == nil && resp.StatusCode == 200 {
-		urlTercero := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion?limit=-1"
+		urlTercero := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
 		urlTercero += "&fields=Id,TerceroPrincipalId,DependenciaId,CargoId"
 		urlTercero += "&query=Activo:true,DependenciaId:" + fmt.Sprint(dependenciaId)
 
 		if resp2, err2 := request.GetJsonTest(urlTercero, &terceros); err2 == nil && resp2.StatusCode == 200 {
 			if len(terceros) > 0 {
 				tercero = terceros[0]
-				urlCargo := "http://" + beego.AppConfig.String("parametrosService") + "parametro/" + fmt.Sprint(tercero.CargoId)
+				urlCargo := "http://" + beego.AppConfig.String("ParametroService") + "parametro/" + fmt.Sprint(tercero.CargoId)
 				if resp3, err3 := request.GetJsonTest(urlCargo, &respParam); err3 == nil && resp3.StatusCode == 200 {
 					jefeDependencia = append(jefeDependencia, map[string]interface{}{
 						"TerceroPrincipal": tercero.TerceroPrincipalId.NombreCompleto,
