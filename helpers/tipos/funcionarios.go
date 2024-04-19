@@ -24,73 +24,6 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 		}
 	}()
 
-	if query != "" {
-		err := errors.New("query no implementado")
-		return nil, e.Error(funcion+`query != ""`, err, fmt.Sprint(http.StatusNotImplemented))
-	}
-
-	var vinculaciones []models.Vinculacion
-	urlTerceros := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
-	urlTerceros += "&fields=Id,TerceroPrincipalId,TipoVinculacionId,DependenciaId"
-	urlTerceros += "&query=Activo:true"
-	if idTercero > 0 {
-		urlTerceros += ",TerceroPrincipalId__Id:" + fmt.Sprint(idTercero)
-	}
-	if resp, err := request.GetJsonTest(urlTerceros, &vinculaciones); err == nil && resp.StatusCode == 200 {
-
-		if len(vinculaciones) == 0 || vinculaciones[0].TerceroPrincipalId == nil {
-			var tercero models.Tercero
-			urlTerceros = "http://" + beego.AppConfig.String("TercerosService") + "tercero/" + fmt.Sprint(idTercero)
-			if resp, err := request.GetJsonTest(urlTerceros, &tercero); err == nil && resp.StatusCode == 200 {
-				terceros = append(terceros, map[string]interface{}{
-					"Tercero": tercero,
-				})
-				return terceros, nil
-			} else {
-				logs.Error(err)
-				outputError = map[string]interface{}{
-					"funcion": "/GetFuncionarios - request.GetJsonTest(urlTerceros, &tercero)",
-					"err":     err,
-					"status":  "502",
-				}
-				return nil, outputError
-			}
-		}
-		// fmt.Println("paramId:", paramID, "#vinculaciones: ", len(vinculaciones))
-
-		// Lo siguiente es para que no se vuelva a agregar un tercero
-		// cuando el tercero tenga más de una vinculación
-		for _, vincul := range vinculaciones {
-			add := true
-			for _, tercero := range terceros {
-				if mTercero := tercero["Tercero"].(*models.Tercero); vincul.TerceroPrincipalId.Id == mTercero.Id {
-					add = false
-					break
-				}
-			}
-			if add {
-				terceros = append(terceros, map[string]interface{}{
-					"Tercero":         vincul.TerceroPrincipalId,
-					"TipoVinculacion": vincul.TipoVinculacionId,
-					"DependenciaId":   vincul.DependenciaId,
-				})
-			}
-		}
-	} else {
-		if err == nil {
-			err = fmt.Errorf("Undesired status code - Got:%d", resp.StatusCode)
-		}
-		logs.Error(err)
-		outputError = map[string]interface{}{
-			"funcion": "/GetFuncionarios - request.GetJsonTest(urlTerceros, &vinculaciones)",
-			"err":     err,
-			"status":  "502",
-		}
-		return nil, outputError
-	}
-	// fmt.Println("#terceros:", len(terceros))
-
-	// PARTE 3 - Agregar Información complementaria de Sede y Dependencia (si la hay)
 	empty := []string{}
 
 	// PARTE 1. Traer los ID de los parámetros asociados a funcionarios
@@ -106,12 +39,6 @@ func GetFuncionarios(idTercero int, query string) (terceros []map[string]interfa
 	queryParametros += ",TipoParametroId__CodigoAbreviacion:" + codigoTipoParamVinculacion
 	queryParametros += ",CodigoAbreviacion__in:" + strings.Join(codigosParametroFuncionarios, "|")
 
-			var resBody []models.AsignacionEspacioFisicoDependencia
-			urlOikos := "http://" + beego.AppConfig.String("OikosService") + "asignacion_espacio_fisico_dependencia?limit=-1"
-			urlOikos += "&fields=Id,EspacioFisicoId,DependenciaId&query=Activo:true"
-			urlOikos += ",EspacioFisicoId__TipoEspacioFisicoId__CodigoAbreviacion:Tipo_1"
-			urlOikos += ",DependenciaId__Id:" + fmt.Sprint(tercero["DependenciaId"])
-			if resp, err := request.GetJsonTest(urlOikos, &resBody); err == nil && resp.StatusCode == 200 {
 	var parametros []ParametrosCrudModels.Parametro
 	step = "1"
 
