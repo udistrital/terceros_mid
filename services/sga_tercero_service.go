@@ -1345,10 +1345,7 @@ func ConsultarPersona(idTercero string) (interface{}, error) {
 			errIdentificacion := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"datos_identificacion?query=Activo:true,TerceroId.Id:"+idTercero+",TipoDocumentoId__Id__lt:14&sortby=Id&order=desc&limit=0", &identificacion)
 			if errIdentificacion == nil && fmt.Sprintf("%v", identificacion[0]) != "map[]" {
 				if identificacion[0]["Status"] != 404 {
-					var estado []map[string]interface{}
 					var genero []map[string]interface{}
-					var orientacionSexual []map[string]interface{}
-					var identidadGenero []map[string]interface{}
 					var telefono []map[string]interface{}
 
 					resultado = persona[0]
@@ -1358,25 +1355,6 @@ func ConsultarPersona(idTercero string) (interface{}, error) {
 					resultado["SoporteDocumento"] = identificacion[0]["DocumentoSoporte"]
 					//fmt.Println("Resultado identificacion")
 					//formatdata.JsonPrint(resultado)
-
-					errEstado := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
-						fmt.Sprintf("%v", persona[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:2", &estado)
-					if errEstado == nil && fmt.Sprintf("%v", estado[0]) != "map[]" {
-						if estado[0]["Status"] != 404 {
-							resultado["EstadoCivil"] = estado[0]["InfoComplementariaId"]
-							resultado["EstadoCivilId"] = estado[0]["Id"]
-							//fmt.Println("Resultado estado civil")
-							//formatdata.JsonPrint(resultado)
-						} else {
-							if estado[0]["Message"] == "Not found resource" {
-								logs.Error("Not found resource")
-							} else {
-								logs.Error("Error --> ", errEstado.Error())
-							}
-						}
-					} else {
-						logs.Error("Error --> ", errEstado.Error())
-					}
 
 					errGenero := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
 						fmt.Sprintf("%v", persona[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:6", &genero)
@@ -1393,38 +1371,6 @@ func ConsultarPersona(idTercero string) (interface{}, error) {
 						}
 					} else {
 						logs.Error("Error --> ", genero)
-					}
-
-					errOrientacionSexual := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
-						fmt.Sprintf("%v", persona[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:1636", &orientacionSexual)
-					if errOrientacionSexual == nil && fmt.Sprintf("%v", orientacionSexual[0]) != "map[]" {
-						if orientacionSexual[0]["Status"] != 404 {
-							resultado["OrientacionSexual"] = orientacionSexual[0]["InfoComplementariaId"]
-							resultado["OrientacionSexualId"] = orientacionSexual[0]["Id"]
-						} else {
-							if orientacionSexual[0]["Message"] == "Not found resource" {
-							} else {
-								logs.Error("Error --> ", orientacionSexual)
-							}
-						}
-					} else {
-						logs.Error("Error --> ", orientacionSexual)
-					}
-
-					errIdentidadGenero := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
-						fmt.Sprintf("%v", persona[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:1637", &identidadGenero)
-					if errIdentidadGenero == nil && fmt.Sprintf("%v", identidadGenero[0]) != "map[]" {
-						if identidadGenero[0]["Status"] != 404 {
-							resultado["IdentidadGenero"] = identidadGenero[0]["InfoComplementariaId"]
-							resultado["IdentidadGeneroId"] = identidadGenero[0]["Id"]
-						} else {
-							if identidadGenero[0]["Message"] == "Not found resource" {
-							} else {
-								logs.Error("Error --> ", identidadGenero)
-							}
-						}
-					} else {
-						logs.Error("Error --> ", identidadGenero)
 					}
 
 					IdTelefono, _ := models.IdInfoCompTercero("10", "TELEFONO")
@@ -1723,6 +1669,42 @@ func ConsultarDatosComplementarios(idTercero string) (interface{}, error) {
 
 			var poblaciones []map[string]interface{}
 			resultado = map[string]interface{}{"Tercero": tercero[0]["Id"]}
+
+			// Bloque para obtener el estado civil
+			var estado []map[string]interface{}
+			errEstado := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
+				fmt.Sprintf("%v", tercero[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:2", &estado)
+			if errEstado == nil && len(estado) > 0 && estado[0]["Status"] != 404 {
+				resultado["EstadoCivil"] = estado[0]["InfoComplementariaId"]
+				resultado["EstadoCivilId"] = estado[0]["Id"]
+			} else if errEstado != nil {
+				log.Error(errEstado)
+				return nil, errors.New("error obteniendo el estado civil")
+			}
+
+			// Bloque para obtener la orientación sexual
+			var orientacionSexual []map[string]interface{}
+			errOrientacionSexual := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
+				fmt.Sprintf("%v", tercero[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:1636", &orientacionSexual)
+			if errOrientacionSexual == nil && len(orientacionSexual) > 0 && orientacionSexual[0]["Status"] != 404 {
+				resultado["OrientacionSexual"] = orientacionSexual[0]["InfoComplementariaId"]
+				resultado["OrientacionSexualId"] = orientacionSexual[0]["Id"]
+			} else if errOrientacionSexual != nil {
+				log.Error(errOrientacionSexual)
+				return nil, errors.New("error obteniendo la orientación sexual")
+			}
+
+			// Bloque para obtener la identidad de género
+			var identidadGenero []map[string]interface{}
+			errIdentidadGenero := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero?query=TerceroId.Id:"+
+				fmt.Sprintf("%v", tercero[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:1637", &identidadGenero)
+			if errIdentidadGenero == nil && len(identidadGenero) > 0 && identidadGenero[0]["Status"] != 404 {
+				resultado["IdentidadGenero"] = identidadGenero[0]["InfoComplementariaId"]
+				resultado["IdentidadGeneroId"] = identidadGenero[0]["Id"]
+			} else if errIdentidadGenero != nil {
+				log.Error(errIdentidadGenero)
+				return nil, errors.New("error obteniendo la identidad de género")
+			}
 
 			errPoblacion := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero?query=Activo:true,terceroId.Id:"+fmt.Sprintf("%v", tercero[0]["Id"])+",InfoComplementariaId.GrupoInfoComplementariaId.Id:3&sortby=Id&order=desc&limit=0", &poblaciones)
 			if errPoblacion == nil && fmt.Sprintf("%v", poblaciones[0]) != "map[]" {
