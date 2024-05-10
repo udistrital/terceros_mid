@@ -26,7 +26,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 	urlDependencia := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
 	urlDependencia += "&fields=DependenciaId"
 	urlDependencia += "&query=TerceroPrincipalId%3A" + idTercero
-	if resp, err := request.GetJsonTest(urlDependencia, &idDependencia); err == nil && resp.StatusCode == 200 {
+	if resp, err := request.GetJsonTest2(urlDependencia, &idDependencia); err == nil && resp == 200 {
 		if len(idDependencia) == 0 || len(idDependencia[0]) == 0 {
 			err := fmt.Errorf("No hay dependencias registradas con el id " + idTercero)
 			logs.Error(err)
@@ -39,7 +39,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 		}
 	} else {
 		if err == nil {
-			err = fmt.Errorf("undesired status code - got:%d", resp.StatusCode)
+			err = fmt.Errorf("undesired status code - got:%d", resp)
 		}
 		logs.Error(err)
 		outputError = map[string]interface{}{
@@ -58,7 +58,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 	var Dependencias []map[string]interface{}
 	for _, idDep := range idDependencia[0] {
 		urlDependencias := "http://" + beego.AppConfig.String("OikosService") + "dependencia/" + fmt.Sprintf("%v", idDep) + "?limit=-1"
-		if resp, err := request.GetJsonTest(urlDependencias, &temp); err == nil && resp.StatusCode == 200 {
+		if resp, err := request.GetJsonTest2(urlDependencias, &temp); err == nil && resp == 200 {
 			if len(temp) == 0 {
 				err := fmt.Errorf("No hay dependencias registradas con el id " + fmt.Sprintf("%v", idDep))
 				logs.Error(err)
@@ -72,7 +72,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 			Dependencias = append(Dependencias, temp)
 		} else {
 			if err == nil {
-				err = fmt.Errorf("undesired status code - got:%d", resp.StatusCode)
+				err = fmt.Errorf("undesired status code - got:%d", resp)
 			}
 			logs.Error(err)
 			outputError = map[string]interface{}{
