@@ -35,6 +35,13 @@ func (c *SgaTercerosController) URLMapping() {
 	c.Mapping("GuardarAutor", c.GuardarAutor)
 	c.Mapping("ConsultarExistenciaPersona", c.ConsultarExistenciaPersona)
 	c.Mapping("ObtenerTercerosConNIT", c.ObtenerTercerosConNIT)
+	c.Mapping("ConsultarDatosAcudiente", c.ConsultarDatosAcudiente)
+	c.Mapping("GuardarDatosAcudiente", c.GuardarDatosAcudiente)
+	c.Mapping("ActualizarDatosAcudiente", c.ActualizarDatosAcudiente)
+	c.Mapping("ConsultarLocalidades", c.ConsultarLocalidades)
+	c.Mapping("ConsultarInfoAcademicaAspirante", c.ConsultarInfoAcademicaAspirante)
+	c.Mapping("CrearLocalidades", c.CrearLocalidades)
+	c.Mapping("ActualizarInfoAcademicaAspirante", c.ActualizarInfoAcademicaAspirante)
 }
 
 // ActualizarPersona ...
@@ -497,4 +504,180 @@ func esNumerico(s string) bool {
 		}
 	}
 	return true
+}
+
+// ConsultarDatosAcudiente
+// @Title ConsultarDatosAcudiente
+// @Description ConsultarDatosAcudiente
+// @Param	tercero_id	path	int	true	"Id del tercero"
+// @Success 200 {}
+// @Failure 404 not found resource
+// @router /datos-acudiente/:tercero_id [get]
+func (c *SgaTercerosController) ConsultarDatosAcudiente() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	//Id de la persona
+	idTercero := c.Ctx.Input.Param(":tercero_id")
+
+	resultado, err := services.ConsultarDatosAcudiente(idTercero)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+
+	c.ServeJSON()
+}
+
+// GuardarDatosAcudiente
+// @Title GuardarDatosAcudiente
+// @Description GuardarDatosAcudiente
+// @Param	tercero_id	path	int	true	"Id del tercero"
+// @Success 200 {}
+// @Failure 404 not found resource
+// @router /datos-acudiente/:tercero_id [post]
+func (c *SgaTercerosController) GuardarDatosAcudiente() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	idTercero := c.Ctx.Input.Param(":tercero_id")
+	data := c.Ctx.Input.RequestBody
+
+	resultado, err := services.GuardarDatosAcudiente(idTercero, data)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+
+	c.ServeJSON()
+}
+
+// ActualizarDatosAcudiente
+// @Title ActualizarDatosAcudiente
+// @Description ActualizarDatosAcudiente
+// @Param	tercero_id	path	int	true	"Id del tercero"
+// @Success 200 {}
+// @Failure 404 not found resource
+// @router /datos-acudiente/:tercero_id [put]
+func (c *SgaTercerosController) ActualizarDatosAcudiente() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	//Id de la persona
+	idTercero := c.Ctx.Input.Param(":tercero_id")
+	data := c.Ctx.Input.RequestBody
+
+	resultado, err := services.ActualizarDatosAcudiente(idTercero, data)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+	c.ServeJSON()
+}
+
+// ConsultarLocalidades ...
+// @Title ConsultarLocalidades
+// @Description get ConsultarLocalidades
+// @Success 200 {}
+// @Failure 404 not found resource
+// @router /localidades [get]
+func (c *SgaTercerosController) ConsultarLocalidades() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	resultado, err := services.ConsultarLocalidades()
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+	c.ServeJSON()
+}
+
+// ConsultarInfoAcademicaAspirante ...
+// @Title ConsultarInfoAcademicaAspirante
+// @Description ConsultarInfoAcademicaAspirante
+// @Param	tercero_id	path	int	true	"Id del tercero"
+// @Success 200 {}
+// @Failure 404 not found resource
+// @router /localidades/:tercero_id [get]
+func (c *SgaTercerosController) ConsultarInfoAcademicaAspirante() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	//Id de la persona
+	idTercero := c.Ctx.Input.Param(":tercero_id")
+
+	resultado, err := services.ConsultarInfoAcademicaAspirante(idTercero)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+	c.ServeJSON()
+}
+
+// CrearLocalidades ...
+// @Title CrearLocalidades
+// @Description CrearLocalidades
+// @Param	body	body 	{}	true		"body for CrearLocalidades content"
+// @Success 200 {}
+// @Failure 403 body is empty
+// @router /localidades/:tercero_id [post]
+func (c *SgaTercerosController) CrearLocalidades() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	//Id de la persona
+	idTercero := c.Ctx.Input.Param(":tercero_id")
+	data := c.Ctx.Input.RequestBody
+
+	resultado, err := services.CrearLocalidades(idTercero, data)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+	c.ServeJSON()
+}
+
+// ActualizarInfoAcademicaAspirante ...
+// @Title ActualizarInfoAcademicaAspirante
+// @Description ActualizarInfoAcademicaAspirante
+// @Param	body	body 	{}	true		"body for Actualizar la info academica del aspirante content"
+// @Success 200 {}
+// @Failure 403 body is empty
+// @router /localidades/:tercero_id [put]
+func (c *SgaTercerosController) ActualizarInfoAcademicaAspirante() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	//Id de la persona
+	idTercero := c.Ctx.Input.Param(":tercero_id")
+	data := c.Ctx.Input.RequestBody
+
+	resultado, err := services.ActualizarInfoAcademicaAspirante(idTercero, data)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+	c.ServeJSON()
 }
