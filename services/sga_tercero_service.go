@@ -2509,7 +2509,14 @@ func ConsultarInfoEstudiante(idTercero string) (interface{}, error) {
 					if err := json.Unmarshal([]byte(correoaux.(string)), &jsondata); err != nil {
 						panic(err)
 					}
-					resultado["CorreoPersonal"] = jsondata["Data"]
+
+					if valor, existe := jsondata["Data"]; existe {
+						resultado["CorreoPersonal"] = valor
+					} else if valor, existe := jsondata["value"]; existe {
+						resultado["CorreoPersonal"] = valor
+					} else {
+						resultado["CorreoPersonal"] = nil
+					}
 				}
 			}
 
