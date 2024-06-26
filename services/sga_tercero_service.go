@@ -3346,3 +3346,93 @@ func ActualizarInfoAcademicaAspirante(idTercero string, data []byte) (interface{
 		return nil, errors.New("error del servicio al actualizar las localidades")
 	}
 }
+
+/*
+// Función para actualizar el correo institucional y crear el tercero si no existe
+func actualizarCorreoInstitucional(data TerceroData) error {
+	// Estructura para los datos de un tercero
+	type TerceroData struct {
+		IdTercero           string `json:"idTercero"`
+		NuevoCorreo         string `json:"nuevoCorreo"`
+		UsuarioWSO2         string `json:"usuarioWSO2"`
+		PrimerNombre        string `json:"primerNombre"`
+		SegundoNombre       string `json:"segundoNombre"`
+		PrimerApellido      string `json:"primerApellido"`
+		SegundoApellido     string `json:"segundoApellido"`
+		FechaNacimiento     string `json:"fechaNacimiento"`
+		TipoIdentificacion  string `json:"tipoIdentificacion"`
+		NumeroIdentificacion string `json:"numeroIdentificacion"`
+		FechaExpedicion     string `json:"fechaExpedicion"`
+		Genero              string `json:"genero"`
+		Telefono            string `json:"telefono"`
+	}
+
+	// Actualizar UsuarioWSO2 en /tercero
+	if err := actualizarUsuarioWSO2(data.IdTercero, data.NuevoCorreo); err != nil {
+		return fmt.Errorf("error updating UsuarioWSO2 in /tercero: %v", err)
+	}
+
+	// Intentar obtener el tercero, si no existe, crearlo
+	tercero, err := obtenerTercero(data.IdTercero)
+	if err != nil {
+		// Si el tercero no existe, se asume un error 404
+		return fmt.Errorf("tercero not found: %v", err)
+	}
+
+	// Agregar o actualizar /info_complementaria_tercero con el nuevo correo institucional
+	if err := agregarActualizarCorreoInfoComplementaria(data.IdTercero, data.NuevoCorreo); err != nil {
+		return fmt.Errorf("error adding/updating /info_complementaria_tercero: %v", err)
+	}
+
+	return nil
+}
+
+// Función para obtener un tercero por su ID
+func obtenerTercero(idTercero string) (*map[string]interface{}, error) {
+	getTerceroURL := fmt.Sprintf("http://%s/tercero/%s", beego.AppConfig.String("TercerosCrudService"), idTercero)
+	var terceroResp map[string]interface{}
+	err := request.SendJson(getTerceroURL, "GET", nil, &terceroResp)
+	if err != nil {
+		// Si el tercero no existe, se asume un error 404
+		return nil, errors.New("tercero not found")
+	}
+	return &terceroResp, nil
+}
+
+// Función para actualizar UsuarioWSO2 en /tercero
+func actualizarUsuarioWSO2(idTercero, nuevoCorreo string) error {
+	updateTerceroURL := fmt.Sprintf("http://%s/tercero/%s", beego.AppConfig.String("TercerosCrudService"), idTercero)
+	updateTerceroData := map[string]interface{}{
+		"UsuarioWSO2": nuevoCorreo,
+	}
+
+	var terceroResp map[string]interface{}
+	if err := request.SendJson(updateTerceroURL, "PUT", updateTerceroData, &terceroResp); err != nil {
+		logs.Error("Error updating UsuarioWSO2 in /tercero:", err)
+		return errors.New("error updating UsuarioWSO2 in /tercero")
+	}
+
+	return nil
+}
+
+// Función para agregar o actualizar /info_complementaria_tercero con el nuevo correo institucional
+func agregarActualizarCorreoInfoComplementaria(idTercero, nuevoCorreo string) error {
+	addInfoComplementariaURL := fmt.Sprintf("http://%s/info_complementaria_tercero", beego.AppConfig.String("TercerosCrudService"))
+	addInfoComplementariaData := map[string]interface{}{
+		"TerceroId": map[string]interface{}{
+			"Id": idTercero,
+		},
+		"InfoComplementariaId": map[string]interface{}{
+			"CorreoInstitucional": nuevoCorreo,
+		},
+		"Activo": true,
+	}
+
+	var infoResp map[string]interface{}
+	if err := request.SendJson(addInfoComplementariaURL, "POST", addInfoComplementariaData, &infoResp); err != nil {
+		logs.Error("Error adding/updating /info_complementaria_tercero:", err)
+		return errors.New("error adding/updating /info_complementaria_tercero")
+	}
+
+	return nil
+} */

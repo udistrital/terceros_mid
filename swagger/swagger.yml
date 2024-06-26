@@ -154,6 +154,24 @@ paths:
           description: '{}'
         "404":
           description: not found resource
+  /personas/asignar-correo-institucional:
+    post:
+      tags:
+      - personas
+      description: Asignar Correo Institucional
+      operationId: SgaTercerosController.AsignarCorreoInstitucional
+      parameters:
+      - in: body
+        name: body
+        description: body for Correo Institucional content Lista de ID Terceros y Correo
+        required: true
+        schema:
+          $ref: '#/definitions/{}'
+      responses:
+        "201":
+          description: '{int}'
+        "400":
+          description: the request contains incorrect syntax
   /personas/autores:
     post:
       tags:
