@@ -3347,92 +3347,111 @@ func ActualizarInfoAcademicaAspirante(idTercero string, data []byte) (interface{
 	}
 }
 
-/*
-// Función para actualizar el correo institucional y crear el tercero si no existe
-func actualizarCorreoInstitucional(data TerceroData) error {
-	// Estructura para los datos de un tercero
-	type TerceroData struct {
-		IdTercero           string `json:"idTercero"`
-		NuevoCorreo         string `json:"nuevoCorreo"`
-		UsuarioWSO2         string `json:"usuarioWSO2"`
-		PrimerNombre        string `json:"primerNombre"`
-		SegundoNombre       string `json:"segundoNombre"`
-		PrimerApellido      string `json:"primerApellido"`
-		SegundoApellido     string `json:"segundoApellido"`
-		FechaNacimiento     string `json:"fechaNacimiento"`
-		TipoIdentificacion  string `json:"tipoIdentificacion"`
-		NumeroIdentificacion string `json:"numeroIdentificacion"`
-		FechaExpedicion     string `json:"fechaExpedicion"`
-		Genero              string `json:"genero"`
-		Telefono            string `json:"telefono"`
-	}
+func ActualizarPersona2(data []byte) (interface{}, error) {
+	var body map[string]interface{}
+	response := make(map[string]interface{})
+	if err := json.Unmarshal(data, &body); err == nil {
 
-	// Actualizar UsuarioWSO2 en /tercero
-	if err := actualizarUsuarioWSO2(data.IdTercero, data.NuevoCorreo); err != nil {
-		return fmt.Errorf("error updating UsuarioWSO2 in /tercero: %v", err)
-	}
+		if idTercero, ok := body["Tercero"].(map[string]interface{})["hasId"].(float64); ok {
 
-	// Intentar obtener el tercero, si no existe, crearlo
-	tercero, err := obtenerTercero(data.IdTercero)
-	if err != nil {
-		// Si el tercero no existe, se asume un error 404
-		return fmt.Errorf("tercero not found: %v", err)
-	}
+			// Actualización para "CORREO INSTITUCIONAL"
+			if body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["hasId"] != nil {
+				idInfComp := body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["hasId"].(float64)
+				var updateInfoComp map[string]interface{}
+				errUpdtInfoComp := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%v", idInfComp), &updateInfoComp)
+				if errUpdtInfoComp == nil && updateInfoComp["Status"] != 404 {
+					updateInfoComp["Dato"] = fmt.Sprintf("{\"value\": \"%s\"}", body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["data"].(string))
 
-	// Agregar o actualizar /info_complementaria_tercero con el nuevo correo institucional
-	if err := agregarActualizarCorreoInfoComplementaria(data.IdTercero, data.NuevoCorreo); err != nil {
-		return fmt.Errorf("error adding/updating /info_complementaria_tercero: %v", err)
-	}
+					formatdata.JsonPrint(updateInfoComp)
 
-	return nil
+					var updateAnswer map[string]interface{}
+					errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idInfComp), "PUT", &updateAnswer, updateInfoComp)
+					if errupdateAnswer == nil {
+						response["correo"] = updateAnswer
+					}
+				}
+			} else {
+				IdCorreo, _ := models.IdInfoCompTercero("10", "CORREO INSTITUCIONAL")
+				ItCorreo, _ := strconv.ParseFloat(IdCorreo, 64)
+				newInfo := map[string]interface{}{
+					"TerceroId":            map[string]interface{}{"Id": idTercero},
+					"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
+					"Dato":                 fmt.Sprintf("{\"value\": \"%s\"}", body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["data"].(string)),
+					"Activo":               true,
+				}
+
+				formatdata.JsonPrint(newInfo)
+				var createinfo map[string]interface{}
+				errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
+				if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
+					response["correo"] = createinfo
+				}
+			}
+			return response, nil
+
+		} else {
+			return nil, errors.New("error del servicio ActualizarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+		}
+
+	} else {
+		logs.Error("Error --> ", err)
+		return nil, errors.New("error del servicio ActualizarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido" + err.Error())
+	}
 }
 
-// Función para obtener un tercero por su ID
-func obtenerTercero(idTercero string) (*map[string]interface{}, error) {
-	getTerceroURL := fmt.Sprintf("http://%s/tercero/%s", beego.AppConfig.String("TercerosCrudService"), idTercero)
-	var terceroResp map[string]interface{}
-	err := request.SendJson(getTerceroURL, "GET", nil, &terceroResp)
-	if err != nil {
-		// Si el tercero no existe, se asume un error 404
-		return nil, errors.New("tercero not found")
+func GuardarPersona2(data []byte) (interface{}, error) {
+	var resultado map[string]interface{}
+	var tercero map[string]interface{}
+	var terceroPost map[string]interface{}
+
+	var paramReq = []string{"PrimerNombre", "Correo"}
+	var jsonOk bool = true
+
+	if err := json.Unmarshal(data, &tercero); err == nil && fmt.Sprintf("%v", tercero) != "map[]" {
+		for _, key := range paramReq {
+			if _, ok := tercero[key]; !ok {
+				jsonOk = false
+				break
+			}
+		}
+		if jsonOk {
+			TipoContribuyenteId := map[string]interface{}{
+				"Id": 1,
+			}
+			guardarpersona := map[string]interface{}{
+				"NombreCompleto":      tercero["PrimerNombre"].(string),
+				"PrimerNombre":        tercero["PrimerNombre"],
+				"Activo":              true,
+				"TipoContribuyenteId": TipoContribuyenteId, // Persona natural actualmente tiene ese id en el api
+			}
+			errPersona := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero", "POST", &terceroPost, guardarpersona)
+
+			if errPersona == nil && fmt.Sprintf("%v", terceroPost) != "map[]" && terceroPost["Id"] != nil {
+				if terceroPost["Status"] != 400 {
+					idTerceroCreado := terceroPost["Id"]
+
+					// Crear "CORREO INSTITUCIONAL"
+					var correoinf map[string]interface{}
+					IdCorreo, _ := models.IdInfoCompTercero("10", "CORREO INSTITUCIONAL")
+					ItCorreo, _ := strconv.ParseFloat(IdCorreo, 64)
+					infoCorreo := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": idTerceroCreado},
+						"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
+						"Dato":                 fmt.Sprintf("{\"value\": \"%s\"}", tercero["Correo"].(string)),
+						"Activo":               true,
+					}
+
+					errcorreo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &correoinf, infoCorreo)
+					if errcorreo == nil && fmt.Sprintf("%v", correoinf) != "map[]" && correoinf["Id"] != nil {
+						resultado = map[string]interface{}{
+							"Id":     idTerceroCreado,
+							"Correo": correoinf,
+						}
+					}
+					return resultado, nil
+				}
+			}
+		}
 	}
-	return &terceroResp, nil
+	return nil, errors.New("error del servicio GuardarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 }
-
-// Función para actualizar UsuarioWSO2 en /tercero
-func actualizarUsuarioWSO2(idTercero, nuevoCorreo string) error {
-	updateTerceroURL := fmt.Sprintf("http://%s/tercero/%s", beego.AppConfig.String("TercerosCrudService"), idTercero)
-	updateTerceroData := map[string]interface{}{
-		"UsuarioWSO2": nuevoCorreo,
-	}
-
-	var terceroResp map[string]interface{}
-	if err := request.SendJson(updateTerceroURL, "PUT", updateTerceroData, &terceroResp); err != nil {
-		logs.Error("Error updating UsuarioWSO2 in /tercero:", err)
-		return errors.New("error updating UsuarioWSO2 in /tercero")
-	}
-
-	return nil
-}
-
-// Función para agregar o actualizar /info_complementaria_tercero con el nuevo correo institucional
-func agregarActualizarCorreoInfoComplementaria(idTercero, nuevoCorreo string) error {
-	addInfoComplementariaURL := fmt.Sprintf("http://%s/info_complementaria_tercero", beego.AppConfig.String("TercerosCrudService"))
-	addInfoComplementariaData := map[string]interface{}{
-		"TerceroId": map[string]interface{}{
-			"Id": idTercero,
-		},
-		"InfoComplementariaId": map[string]interface{}{
-			"CorreoInstitucional": nuevoCorreo,
-		},
-		"Activo": true,
-	}
-
-	var infoResp map[string]interface{}
-	if err := request.SendJson(addInfoComplementariaURL, "POST", addInfoComplementariaData, &infoResp); err != nil {
-		logs.Error("Error adding/updating /info_complementaria_tercero:", err)
-		return errors.New("error adding/updating /info_complementaria_tercero")
-	}
-
-	return nil
-} */
