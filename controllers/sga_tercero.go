@@ -42,6 +42,8 @@ func (c *SgaTercerosController) URLMapping() {
 	c.Mapping("ConsultarInfoAcademicaAspirante", c.ConsultarInfoAcademicaAspirante)
 	c.Mapping("CrearLocalidades", c.CrearLocalidades)
 	c.Mapping("ActualizarInfoAcademicaAspirante", c.ActualizarInfoAcademicaAspirante)
+	c.Mapping("AsignarCorreoInstitucional", c.AsignarCorreoInstitucional)
+
 }
 
 // ActualizarPersona ...
@@ -678,6 +680,30 @@ func (c *SgaTercerosController) ActualizarInfoAcademicaAspirante() {
 	} else {
 		c.Ctx.Output.SetStatus(404)
 		c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
+	}
+	c.ServeJSON()
+}
+
+// AsignarCorreoInstitucional ...
+// @Title AsignarCorreoInstitucional
+// @Description Asignar Correo Institucional
+// @Param	body		body 	{}	true		"body for Correo Institucional content Lista de ID Terceros y Correo"
+// @Success 201 {int}
+// @Failure 400 the request contains incorrect syntax
+// @router /asignar-correo-institucional [post]
+func (c *SgaTercerosController) AsignarCorreoInstitucional() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	data := c.Ctx.Input.RequestBody
+
+	resultado, err := services.AsignarCorreoInstitucional(data)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(201)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 201, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(400)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 400, nil, err.Error())
 	}
 	c.ServeJSON()
 }
