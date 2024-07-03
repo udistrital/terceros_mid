@@ -3347,111 +3347,59 @@ func ActualizarInfoAcademicaAspirante(idTercero string, data []byte) (interface{
 	}
 }
 
-func ActualizarPersona2(data []byte) (interface{}, error) {
-	var body map[string]interface{}
-	response := make(map[string]interface{})
+func AsignarCorreoInstitucional(data []byte) (interface{}, error) {
+	var body []map[string]interface{}
+	var response []map[string]interface{}
 	if err := json.Unmarshal(data, &body); err == nil {
+		IdCorreo, _ := models.IdInfoCompTercero("10", "CI")
+		ItCorreo, _ := strconv.ParseFloat(IdCorreo, 64)
+		for _, info := range body {
+			var updateTercero map[string]interface{}
+			errUpdtTercero := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), &updateTercero)
+			if errUpdtTercero == nil && updateTercero["Status"] != 404 {
+				updateTercero["UsuarioWSO2"] = info["Correo"]
 
-		if idTercero, ok := body["Tercero"].(map[string]interface{})["hasId"].(float64); ok {
-
-			// Actualización para "CORREO INSTITUCIONAL"
-			if body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["hasId"] != nil {
-				idInfComp := body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["hasId"].(float64)
-				var updateInfoComp map[string]interface{}
-				errUpdtInfoComp := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%v", idInfComp), &updateInfoComp)
-				if errUpdtInfoComp == nil && updateInfoComp["Status"] != 404 {
-					updateInfoComp["Dato"] = fmt.Sprintf("{\"value\": \"%s\"}", body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["data"].(string))
-
-					formatdata.JsonPrint(updateInfoComp)
-
-					var updateAnswer map[string]interface{}
-					errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idInfComp), "PUT", &updateAnswer, updateInfoComp)
-					if errupdateAnswer == nil {
-						response["correo"] = updateAnswer
-					}
-				}
-			} else {
-				IdCorreo, _ := models.IdInfoCompTercero("10", "CORREO INSTITUCIONAL")
-				ItCorreo, _ := strconv.ParseFloat(IdCorreo, 64)
-				newInfo := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": idTercero},
-					"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
-					"Dato":                 fmt.Sprintf("{\"value\": \"%s\"}", body["Complementarios"].(map[string]interface{})["Correo"].(map[string]interface{})["data"].(string)),
-					"Activo":               true,
-				}
-
-				formatdata.JsonPrint(newInfo)
-				var createinfo map[string]interface{}
-				errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
-				if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
-					response["correo"] = createinfo
-				}
-			}
-			return response, nil
-
-		} else {
-			return nil, errors.New("error del servicio ActualizarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
-		}
-
-	} else {
-		logs.Error("Error --> ", err)
-		return nil, errors.New("error del servicio ActualizarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido" + err.Error())
-	}
-}
-
-func GuardarPersona2(data []byte) (interface{}, error) {
-	var resultado map[string]interface{}
-	var tercero map[string]interface{}
-	var terceroPost map[string]interface{}
-
-	var paramReq = []string{"PrimerNombre", "Correo"}
-	var jsonOk bool = true
-
-	if err := json.Unmarshal(data, &tercero); err == nil && fmt.Sprintf("%v", tercero) != "map[]" {
-		for _, key := range paramReq {
-			if _, ok := tercero[key]; !ok {
-				jsonOk = false
-				break
-			}
-		}
-		if jsonOk {
-			TipoContribuyenteId := map[string]interface{}{
-				"Id": 1,
-			}
-			guardarpersona := map[string]interface{}{
-				"NombreCompleto":      tercero["PrimerNombre"].(string),
-				"PrimerNombre":        tercero["PrimerNombre"],
-				"Activo":              true,
-				"TipoContribuyenteId": TipoContribuyenteId, // Persona natural actualmente tiene ese id en el api
-			}
-			errPersona := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero", "POST", &terceroPost, guardarpersona)
-
-			if errPersona == nil && fmt.Sprintf("%v", terceroPost) != "map[]" && terceroPost["Id"] != nil {
-				if terceroPost["Status"] != 400 {
-					idTerceroCreado := terceroPost["Id"]
-
-					// Crear "CORREO INSTITUCIONAL"
-					var correoinf map[string]interface{}
-					IdCorreo, _ := models.IdInfoCompTercero("10", "CORREO INSTITUCIONAL")
-					ItCorreo, _ := strconv.ParseFloat(IdCorreo, 64)
-					infoCorreo := map[string]interface{}{
-						"TerceroId":            map[string]interface{}{"Id": idTerceroCreado},
+				var updateAnswer map[string]interface{}
+				errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), "PUT", &updateAnswer, updateTercero)
+				if errupdateAnswer == nil {
+					response = append(response, updateAnswer)
+					newInfo := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": info["Id"]},
 						"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
-						"Dato":                 fmt.Sprintf("{\"value\": \"%s\"}", tercero["Correo"].(string)),
+						"Dato":                 fmt.Sprintf("{\"value\": \"%v\"}", info["Correo"]),
 						"Activo":               true,
 					}
 
-					errcorreo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &correoinf, infoCorreo)
-					if errcorreo == nil && fmt.Sprintf("%v", correoinf) != "map[]" && correoinf["Id"] != nil {
-						resultado = map[string]interface{}{
-							"Id":     idTerceroCreado,
-							"Correo": correoinf,
-						}
+					var createinfo map[string]interface{}
+					errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
+					if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
+						response = append(response, createinfo)
+					} else {
+						log.Error(errCreateInfo)
+						response = append(response, map[string]interface{}{
+							"Id":    info["Id"],
+							"Error": "Error al crear registro",
+						})
 					}
-					return resultado, nil
+				} else {
+					log.Error(errupdateAnswer)
+					response = append(response, map[string]interface{}{
+						"Id":    info["Id"],
+						"Error": "Error al actualizar la información",
+					})
 				}
+			} else {
+				log.Error(errUpdtTercero)
+				response = append(response, map[string]interface{}{
+					"Id":    info["Id"],
+					"Error": "Hubo problemas al consultar el servicio",
+				})
 			}
 		}
+		return response, nil
+	} else {
+		logs.Error("Error --> ", err)
+		return nil, errors.New("error del servicio AsignarCorreoInstitucional: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido" + err.Error())
 	}
-	return nil, errors.New("error del servicio GuardarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+
 }

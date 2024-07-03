@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/url"
 	"unicode"
 
@@ -694,16 +693,17 @@ func (c *SgaTercerosController) ActualizarInfoAcademicaAspirante() {
 // @router /asignar-correo-institucional [post]
 func (c *SgaTercerosController) AsignarCorreoInstitucional() {
 	defer errorhandler.HandlePanic(&c.Controller)
-	var body map[string]interface{}
 
 	data := c.Ctx.Input.RequestBody
-	if err := json.Unmarshal(data, &body); err == nil {
+
+	resultado, err := services.AsignarCorreoInstitucional(data)
+
+	if err == nil {
 		c.Ctx.Output.SetStatus(201)
-		c.Data["json"] = requestresponse.APIResponseDTO(true, 201, body)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 201, resultado)
 	} else {
 		c.Ctx.Output.SetStatus(400)
-		c.Data["json"] = requestresponse.APIResponseDTO(false, 400, nil, "Body con Sintaxis Incorrecto")
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 400, nil, err.Error())
 	}
-
 	c.ServeJSON()
 }
