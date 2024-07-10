@@ -3346,3 +3346,60 @@ func ActualizarInfoAcademicaAspirante(idTercero string, data []byte) (interface{
 		return nil, errors.New("error del servicio al actualizar las localidades")
 	}
 }
+
+func AsignarCorreoInstitucional(data []byte) (interface{}, error) {
+	var body []map[string]interface{}
+	var response []map[string]interface{}
+	if err := json.Unmarshal(data, &body); err == nil {
+		IdCorreo, _ := models.IdInfoCompTercero("10", "CI")
+		ItCorreo, _ := strconv.ParseFloat(IdCorreo, 64)
+		for _, info := range body {
+			var updateTercero map[string]interface{}
+			errUpdtTercero := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), &updateTercero)
+			if errUpdtTercero == nil && updateTercero["Status"] != 404 {
+				updateTercero["UsuarioWSO2"] = info["Correo"]
+
+				var updateAnswer map[string]interface{}
+				errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), "PUT", &updateAnswer, updateTercero)
+				if errupdateAnswer == nil {
+					response = append(response, updateAnswer)
+					newInfo := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": info["Id"]},
+						"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
+						"Dato":                 fmt.Sprintf("{\"value\": \"%v\"}", info["Correo"]),
+						"Activo":               true,
+					}
+
+					var createinfo map[string]interface{}
+					errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
+					if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
+						response = append(response, createinfo)
+					} else {
+						log.Error(errCreateInfo)
+						response = append(response, map[string]interface{}{
+							"Id":    info["Id"],
+							"Error": "Error al crear registro",
+						})
+					}
+				} else {
+					log.Error(errupdateAnswer)
+					response = append(response, map[string]interface{}{
+						"Id":    info["Id"],
+						"Error": "Error al actualizar la información",
+					})
+				}
+			} else {
+				log.Error(errUpdtTercero)
+				response = append(response, map[string]interface{}{
+					"Id":    info["Id"],
+					"Error": "Hubo problemas al consultar el servicio",
+				})
+			}
+		}
+		return response, nil
+	} else {
+		logs.Error("Error --> ", err)
+		return nil, errors.New("error del servicio AsignarCorreoInstitucional: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido" + err.Error())
+	}
+
+}
