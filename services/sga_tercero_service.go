@@ -234,6 +234,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			HayError = true
 		}
 
+		// Registro de Grupo Sanguineo y Rh
 		if !HayError {
 			var grupoSanguineoPost map[string]interface{}
 			InfoComplementariaId2 := map[string]interface{}{
@@ -284,6 +285,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		// Registro de Poblaciones
 		if !HayError {
 			poblaciones := tercero["TipoPoblacion"].([]interface{})
 			for i := 0; i < len(poblaciones); i++ {
@@ -337,6 +339,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		// Registro de Lugar de origen
 		if !HayError {
 			terceroget["LugarOrigen"] = tercero["Lugar"].(map[string]interface{})["Id"].(float64)
 			errLugarPut := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%.f", tercero["Tercero"].(float64)), "PUT", &LugarPut, terceroget)
@@ -357,6 +360,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		// Registro de Discapacidades
 		if !HayError {
 			discapacidades := tercero["TipoDiscapacidad"].([]interface{})
 			for i := 0; i < len(discapacidades); i++ {
@@ -410,6 +414,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		// Registro de EPS
 		if !HayError {
 			// Registro de EPS
 			if (tercero["EPS"] != nil) && (tercero["FechaVinculacionEPS"] != nil) {
@@ -435,10 +440,10 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 					logs.Error("Error --> ", errNuevaEPS)
 					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
-
 			}
 		}
 
+		// Registro de ARL
 		if !HayError {
 			// Registro de Grupo de sisben
 			if tercero["GrupoSisben"] != nil {
@@ -470,6 +475,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		// Registro de Número de hermanos
 		if !HayError {
 			// Registro de Número de hermanos
 			if tercero["NumeroHermanos"] != nil {
@@ -494,6 +500,89 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 					logs.Error("Error --> ", errGrupoSisbenPost)
 					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
+			}
+		}
+
+		//Registro de estado civil
+		if !HayError {
+			// DATOS QUE VAN EL BODY DE LA PETICION A INFO_COMPLEMENTARIA_TERCERO
+			bodyInfoComplementariaTercero := map[string]interface{}{
+				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+				"InfoComplementariaId": map[string]interface{}{"Id": tercero["EstadoCivil"].(map[string]interface{})["Id"].(float64)},
+				"Activo":               true,
+			}
+			// Esta variable guardara la respuesta del api en caso que sea correcta.
+			var responsePostEstadoCivil map[string]interface{}
+			errResponsePostEstadoCivil := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &responsePostEstadoCivil, bodyInfoComplementariaTercero)
+			// Si la respuesta es correcta, se procede a validar si el estado civil fue guardado correctamente.
+			if errResponsePostEstadoCivil == nil && fmt.Sprintf("%v", errResponsePostEstadoCivil) != "map[]" && responsePostEstadoCivil["Id"] != nil {
+				if responsePostEstadoCivil["Status"] != 400 {
+					//Ok PUT lugarId tercero
+					//resultado = append(resultado, LugarPut)
+
+				} else {
+					HayError = true
+					logs.Error("Error --> ", errResponsePostEstadoCivil)
+					return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar el estado civil")
+				}
+			} else {
+				HayError = true
+				logs.Error("Error --> ", errResponsePostEstadoCivil)
+				return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar el estado civil")
+			}
+		}
+
+		//Registro de estado orientacion sexual
+		if !HayError {
+			// DATOS QUE VAN EL BODY DE LA PETICION A INFO_COMPLEMENTARIA_TERCERO
+			bodyInfoComplementariaTercero := map[string]interface{}{
+				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+				"InfoComplementariaId": map[string]interface{}{"Id": tercero["OrientacionSexual"].(map[string]interface{})["Id"].(float64)},
+				"Activo":               true,
+			}
+			// Esta variable guardara la respuesta del api en caso que sea correcta.
+			var responsePostOrientacionSexual map[string]interface{}
+			errResponsePostOrientacionSexual := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &responsePostOrientacionSexual, bodyInfoComplementariaTercero)
+			// Si la respuesta es correcta, se procede a validar si el estado civil fue guardado correctamente.
+			if errResponsePostOrientacionSexual == nil && fmt.Sprintf("%v", errResponsePostOrientacionSexual) != "map[]" && responsePostOrientacionSexual["Id"] != nil {
+				if responsePostOrientacionSexual["Status"] != 400 {
+					resultado = append(resultado, responsePostOrientacionSexual)
+				} else {
+					HayError = true
+					logs.Error("Error --> ", errResponsePostOrientacionSexual)
+					return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la orientación sexual")
+				}
+			} else {
+				HayError = true
+				logs.Error("Error --> ", errResponsePostOrientacionSexual)
+				return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la orientación sexual")
+			}
+		}
+
+		//Registro de identidad de genero
+		if !HayError {
+			// DATOS QUE VAN EL BODY DE LA PETICION A INFO_COMPLEMENTARIA_TERCERO
+			bodyInfoComplementariaTercero := map[string]interface{}{
+				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+				"InfoComplementariaId": map[string]interface{}{"Id": tercero["IdentidadGenero"].(map[string]interface{})["Id"].(float64)},
+				"Activo":               true,
+			}
+			// Esta variable guardara la respuesta del api en caso que sea correcta.
+			var responsePostIdentidadGenero map[string]interface{}
+			errResponsePostIdentidadGenero := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &responsePostIdentidadGenero, bodyInfoComplementariaTercero)
+			// Si la respuesta es correcta, se procede a validar si el estado civil fue guardado correctamente.
+			if errResponsePostIdentidadGenero == nil && fmt.Sprintf("%v", errResponsePostIdentidadGenero) != "map[]" && responsePostIdentidadGenero["Id"] != nil {
+				if responsePostIdentidadGenero["Status"] != 400 {
+					resultado = append(resultado, responsePostIdentidadGenero)
+				} else {
+					HayError = true
+					logs.Error("Error --> ", errResponsePostIdentidadGenero)
+					return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la identidad de genero")
+				}
+			} else {
+				HayError = true
+				logs.Error("Error --> ", errResponsePostIdentidadGenero)
+				return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la identidad de genero")
 			}
 		}
 
