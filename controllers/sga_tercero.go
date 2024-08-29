@@ -707,3 +707,27 @@ func (c *SgaTercerosController) AsignarCorreoInstitucional() {
 	}
 	c.ServeJSON()
 }
+
+// AsignarRolEstudiante ...
+// @Title AsignarRolEstudiante
+// @Description Asignar Rol de Estudiante
+// @Param	body		body 	{}	true		"body for role assignment content Lista de ID Terceros y Correo"
+// @Success 201 {int}
+// @Failure 400 the request contains incorrect syntax
+// @router /asignar-rol-estudiante [post]
+func (c *SgaTercerosController) AsignarRolEstudiante() {
+	defer errorhandler.HandlePanic(&c.Controller)
+
+	data := c.Ctx.Input.RequestBody
+
+	resultado, err := services.AsignarCorreoInstitucional(data)
+
+	if err == nil {
+		c.Ctx.Output.SetStatus(201)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 201, resultado)
+	} else {
+		c.Ctx.Output.SetStatus(400)
+		c.Data["json"] = requestresponse.APIResponseDTO(true, 400, nil, err.Error())
+	}
+	c.ServeJSON()
+}

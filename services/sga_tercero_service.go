@@ -234,182 +234,191 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			HayError = true
 		}
 
+		// Registro de Grupo Sanguineo y Rh
 		if !HayError {
-			var grupoSanguineoPost map[string]interface{}
-			InfoComplementariaId2 := map[string]interface{}{
-				"Id": tercero["GrupoSanguineo"],
-			}
-			grupoSanguineo := map[string]interface{}{
-				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-				"InfoComplementariaId": InfoComplementariaId2,
-				"Activo":               true,
-			}
-			errGrupoSanguineoPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &grupoSanguineoPost, grupoSanguineo)
-			if errGrupoSanguineoPost == nil && fmt.Sprintf("%v", grupoSanguineoPost) != "map[]" && grupoSanguineoPost["Id"] != nil {
-				if grupoSanguineoPost["Status"] != 400 {
-					//Ok POST Gr sang
-					resultado = append(resultado, grupoSanguineoPost)
+			if tercero["GrupoSanguineo"] == nil {
+				var grupoSanguineoPost map[string]interface{}
+				InfoComplementariaId2 := map[string]interface{}{
+					"Id": tercero["GrupoSanguineo"],
+				}
+				grupoSanguineo := map[string]interface{}{
+					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+					"InfoComplementariaId": InfoComplementariaId2,
+					"Activo":               true,
+				}
+				errGrupoSanguineoPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &grupoSanguineoPost, grupoSanguineo)
+				if errGrupoSanguineoPost == nil && fmt.Sprintf("%v", grupoSanguineoPost) != "map[]" && grupoSanguineoPost["Id"] != nil {
+					if grupoSanguineoPost["Status"] != 400 {
+						resultado = append(resultado, grupoSanguineoPost)
+						var FactorRhPost map[string]interface{}
+						InfoComplementariaId3 := map[string]interface{}{
+							"Id": tercero["Rh"],
+						}
+						factorRh := map[string]interface{}{
+							"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+							"InfoComplementariaId": InfoComplementariaId3,
+							"Activo":               true,
+						}
+						errFactorRhPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &FactorRhPost, factorRh)
+						if errFactorRhPost == nil && fmt.Sprintf("%v", FactorRhPost) != "map[]" && FactorRhPost["Id"] != nil {
+							if FactorRhPost["Status"] != 400 {
+								// Ok POST Rh
+								resultado = append(resultado, FactorRhPost)
 
-					var FactorRhPost map[string]interface{}
-					InfoComplementariaId3 := map[string]interface{}{
-						"Id": tercero["Rh"],
-					}
-					factorRh := map[string]interface{}{
-						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-						"InfoComplementariaId": InfoComplementariaId3,
-						"Activo":               true,
-					}
-					errFactorRhPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &FactorRhPost, factorRh)
-					if errFactorRhPost == nil && fmt.Sprintf("%v", FactorRhPost) != "map[]" && FactorRhPost["Id"] != nil {
-						if FactorRhPost["Status"] != 400 {
-							// Ok POST Rh
-							resultado = append(resultado, FactorRhPost)
-
+							} else {
+								HayError = true
+								return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+							}
 						} else {
 							HayError = true
 							return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 						}
+
 					} else {
 						HayError = true
 						return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 					}
-
 				} else {
 					HayError = true
 					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
-			} else {
-				HayError = true
-				return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 			}
 		}
 
+		// Registro de Poblaciones
 		if !HayError {
-			poblaciones := tercero["TipoPoblacion"].([]interface{})
-			for i := 0; i < len(poblaciones); i++ {
-				var poblacionPost1 map[string]interface{}
-				TipoPoblacion := poblaciones[i].(map[string]interface{})
-				nuevaPoblacion := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-					"InfoComplementariaId": map[string]interface{}{"Id": TipoPoblacion["Id"].(float64)},
-					"Activo":               true,
-				}
-				errPoblacionPost1 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &poblacionPost1, nuevaPoblacion)
-				if errPoblacionPost1 == nil && fmt.Sprintf("%v", poblacionPost1) != "map[]" && poblacionPost1["Id"] != nil {
-					if poblacionPost1["Status"] != 400 {
-						//Ok POST select Poblacion
-						resultado = append(resultado, poblacionPost1)
+			if tercero["TipoPoblacion"] == nil {
+				poblaciones := tercero["TipoPoblacion"].([]interface{})
+				for i := 0; i < len(poblaciones); i++ {
+					var poblacionPost1 map[string]interface{}
+					TipoPoblacion := poblaciones[i].(map[string]interface{})
+					nuevaPoblacion := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+						"InfoComplementariaId": map[string]interface{}{"Id": TipoPoblacion["Id"].(float64)},
+						"Activo":               true,
+					}
+					errPoblacionPost1 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &poblacionPost1, nuevaPoblacion)
+					if errPoblacionPost1 == nil && fmt.Sprintf("%v", poblacionPost1) != "map[]" && poblacionPost1["Id"] != nil {
+						if poblacionPost1["Status"] != 400 {
+							resultado = append(resultado, poblacionPost1)
+						} else {
+							HayError = true
+							logs.Error("Error --> ", errPoblacionPost1)
+							return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+						}
 					} else {
 						HayError = true
 						logs.Error("Error --> ", errPoblacionPost1)
 						return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 					}
-				} else {
-					HayError = true
-					logs.Error("Error --> ", errPoblacionPost1)
-					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
-			}
-			if fmt.Sprintf("%v", reflect.TypeOf(tercero["ComprobantePoblacion"])) == "map[string]interface {}" {
-				var poblacionPost2 map[string]interface{}
-				comprobantePoblacion := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-					"InfoComplementariaId": map[string]interface{}{"Id": 315},
-					"Activo":               true,
-					"Dato":                 `{"value":` + fmt.Sprintf("%v", tercero["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
-				}
-				errPoblacionPost2 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &poblacionPost2, comprobantePoblacion)
-				if errPoblacionPost2 == nil && fmt.Sprintf("%v", poblacionPost2) != "map[]" && poblacionPost2["Id"] != nil {
-					if poblacionPost2["Status"] != 400 {
-						//Ok POST comp pobl
-						resultado = append(resultado, poblacionPost2)
+				if fmt.Sprintf("%v", reflect.TypeOf(tercero["ComprobantePoblacion"])) == "map[string]interface {}" {
+					var poblacionPost2 map[string]interface{}
+					comprobantePoblacion := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+						"InfoComplementariaId": map[string]interface{}{"Id": 315},
+						"Activo":               true,
+						"Dato":                 `{"value":` + fmt.Sprintf("%v", tercero["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
+					}
+					errPoblacionPost2 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &poblacionPost2, comprobantePoblacion)
+					if errPoblacionPost2 == nil && fmt.Sprintf("%v", poblacionPost2) != "map[]" && poblacionPost2["Id"] != nil {
+						if poblacionPost2["Status"] != 400 {
+							//Ok POST comp pobl
+							resultado = append(resultado, poblacionPost2)
 
+						} else {
+							HayError = true
+							logs.Error("Error --> ", errPoblacionPost2)
+							return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+						}
 					} else {
 						HayError = true
 						logs.Error("Error --> ", errPoblacionPost2)
 						return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 					}
-				} else {
-					HayError = true
-					logs.Error("Error --> ", errPoblacionPost2)
-					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
 			}
 		}
 
+		// Registro de Lugar de origen
 		if !HayError {
-			terceroget["LugarOrigen"] = tercero["Lugar"].(map[string]interface{})["Id"].(float64)
-			errLugarPut := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%.f", tercero["Tercero"].(float64)), "PUT", &LugarPut, terceroget)
-			if errLugarPut == nil && fmt.Sprintf("%v", LugarPut) != "map[]" && LugarPut["Id"] != nil {
-				if LugarPut["Status"] != 400 {
-					//Ok PUT lugarId tercero
-					//resultado = append(resultado, LugarPut)
-
+			if tercero["Lugar"] == nil {
+				terceroget["LugarOrigen"] = tercero["Lugar"].(map[string]interface{})["Id"].(float64)
+				errLugarPut := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%.f", tercero["Tercero"].(float64)), "PUT", &LugarPut, terceroget)
+				if errLugarPut == nil && fmt.Sprintf("%v", LugarPut) != "map[]" && LugarPut["Id"] != nil {
+					if LugarPut["Status"] != 400 {
+						resultado = append(resultado, LugarPut)
+					} else {
+						HayError = true
+						logs.Error("Error --> ", errLugarPut)
+						return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+					}
 				} else {
 					HayError = true
 					logs.Error("Error --> ", errLugarPut)
 					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
-			} else {
-				HayError = true
-				logs.Error("Error --> ", errLugarPut)
-				return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 			}
 		}
 
+		// Registro de Discapacidades
 		if !HayError {
-			discapacidades := tercero["TipoDiscapacidad"].([]interface{})
-			for i := 0; i < len(discapacidades); i++ {
-				var discapacidadPost1 map[string]interface{}
-				discapacidad := discapacidades[i].(map[string]interface{})
-				nuevadiscapacidad := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-					"InfoComplementariaId": map[string]interface{}{"Id": discapacidad["Id"].(float64)},
-					"Activo":               true,
-				}
-				errDiscapacidadPost1 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &discapacidadPost1, nuevadiscapacidad)
-				if errDiscapacidadPost1 == nil && fmt.Sprintf("%v", discapacidadPost1) != "map[]" && discapacidadPost1["Id"] != nil {
-					if discapacidadPost1["Status"] != 400 {
-						//Ok POST select discapacidad
-						resultado = append(resultado, discapacidadPost1)
+			if tercero["TipoDiscapacidad"] == nil {
+				discapacidades := tercero["TipoDiscapacidad"].([]interface{})
+				for i := 0; i < len(discapacidades); i++ {
+					var discapacidadPost1 map[string]interface{}
+					discapacidad := discapacidades[i].(map[string]interface{})
+					nuevadiscapacidad := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+						"InfoComplementariaId": map[string]interface{}{"Id": discapacidad["Id"].(float64)},
+						"Activo":               true,
+					}
+					errDiscapacidadPost1 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &discapacidadPost1, nuevadiscapacidad)
+					if errDiscapacidadPost1 == nil && fmt.Sprintf("%v", discapacidadPost1) != "map[]" && discapacidadPost1["Id"] != nil {
+						if discapacidadPost1["Status"] != 400 {
+							//Ok POST select discapacidad
+							resultado = append(resultado, discapacidadPost1)
+						} else {
+							HayError = true
+							logs.Error("Error --> ", errDiscapacidadPost1)
+							return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+						}
 					} else {
 						HayError = true
 						logs.Error("Error --> ", errDiscapacidadPost1)
 						return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 					}
-				} else {
-					HayError = true
-					logs.Error("Error --> ", errDiscapacidadPost1)
-					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
-			}
-			if fmt.Sprintf("%v", reflect.TypeOf(tercero["ComprobanteDiscapacidad"])) == "map[string]interface {}" {
-				var discapacidadPost2 map[string]interface{}
-				comprobanteDiscapacidad := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-					"InfoComplementariaId": map[string]interface{}{"Id": 310},
-					"Activo":               true,
-					"Dato":                 `{"value":` + fmt.Sprintf("%v", tercero["ComprobanteDiscapacidad"].(map[string]interface{})["Id"]) + `}`,
-				}
-				errDiscapacidadPost2 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &discapacidadPost2, comprobanteDiscapacidad)
-				if errDiscapacidadPost2 == nil && fmt.Sprintf("%v", discapacidadPost2) != "map[]" && discapacidadPost2["Id"] != nil {
-					if discapacidadPost2["Status"] != 400 {
-						//Ok POST comp disca
-						resultado = append(resultado, discapacidadPost2)
+				if fmt.Sprintf("%v", reflect.TypeOf(tercero["ComprobanteDiscapacidad"])) == "map[string]interface {}" {
+					var discapacidadPost2 map[string]interface{}
+					comprobanteDiscapacidad := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+						"InfoComplementariaId": map[string]interface{}{"Id": 310},
+						"Activo":               true,
+						"Dato":                 `{"value":` + fmt.Sprintf("%v", tercero["ComprobanteDiscapacidad"].(map[string]interface{})["Id"]) + `}`,
+					}
+					errDiscapacidadPost2 := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &discapacidadPost2, comprobanteDiscapacidad)
+					if errDiscapacidadPost2 == nil && fmt.Sprintf("%v", discapacidadPost2) != "map[]" && discapacidadPost2["Id"] != nil {
+						if discapacidadPost2["Status"] != 400 {
+							//Ok POST comp disca
+							resultado = append(resultado, discapacidadPost2)
 
+						} else {
+							HayError = true
+							logs.Error("Error --> ", errDiscapacidadPost2)
+							return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+						}
 					} else {
 						HayError = true
 						logs.Error("Error --> ", errDiscapacidadPost2)
 						return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 					}
-				} else {
-					HayError = true
-					logs.Error("Error --> ", errDiscapacidadPost2)
-					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
 			}
+
 		}
 
+		// Registro de EPS
 		if !HayError {
 			// Registro de EPS
 			if (tercero["EPS"] != nil) && (tercero["FechaVinculacionEPS"] != nil) {
@@ -435,10 +444,10 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 					logs.Error("Error --> ", errNuevaEPS)
 					return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 				}
-
 			}
 		}
 
+		// Registro de ARL
 		if !HayError {
 			// Registro de Grupo de sisben
 			if tercero["GrupoSisben"] != nil {
@@ -470,6 +479,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		// Registro de Número de hermanos
 		if !HayError {
 			// Registro de Número de hermanos
 			if tercero["NumeroHermanos"] != nil {
@@ -497,16 +507,105 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 			}
 		}
 
+		//Registro de estado civil
+		if !HayError {
+			if tercero["EstadoCivil"] != nil {
+				// DATOS QUE VAN EL BODY DE LA PETICION A INFO_COMPLEMENTARIA_TERCERO
+				bodyInfoComplementariaTercero := map[string]interface{}{
+					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+					"InfoComplementariaId": map[string]interface{}{"Id": tercero["EstadoCivil"].(map[string]interface{})["Id"].(float64)},
+					"Activo":               true,
+				}
+				// Esta variable guardara la respuesta del api en caso que sea correcta.
+				var responsePostEstadoCivil map[string]interface{}
+				errResponsePostEstadoCivil := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &responsePostEstadoCivil, bodyInfoComplementariaTercero)
+				// Si la respuesta es correcta, se procede a validar si el estado civil fue guardado correctamente.
+				if errResponsePostEstadoCivil == nil && fmt.Sprintf("%v", errResponsePostEstadoCivil) != "map[]" && responsePostEstadoCivil["Id"] != nil {
+					if responsePostEstadoCivil["Status"] != 400 {
+						resultado = append(resultado, responsePostEstadoCivil)
+					} else {
+						HayError = true
+						logs.Error("Error --> ", errResponsePostEstadoCivil)
+						return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar el estado civil")
+					}
+				} else {
+					HayError = true
+					logs.Error("Error --> ", errResponsePostEstadoCivil)
+					return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar el estado civil")
+				}
+			}
+
+		}
+
+		//Registro de estado orientacion sexual
+		if !HayError {
+			if tercero["OrientacionSexual"] != nil {
+				// DATOS QUE VAN EL BODY DE LA PETICION A INFO_COMPLEMENTARIA_TERCERO
+				bodyInfoComplementariaTercero := map[string]interface{}{
+					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+					"InfoComplementariaId": map[string]interface{}{"Id": tercero["OrientacionSexual"].(map[string]interface{})["Id"].(float64)},
+					"Activo":               true,
+				}
+				// Esta variable guardara la respuesta del api en caso que sea correcta.
+				var responsePostOrientacionSexual map[string]interface{}
+				errResponsePostOrientacionSexual := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &responsePostOrientacionSexual, bodyInfoComplementariaTercero)
+				// Si la respuesta es correcta, se procede a validar si el estado civil fue guardado correctamente.
+				if errResponsePostOrientacionSexual == nil && fmt.Sprintf("%v", errResponsePostOrientacionSexual) != "map[]" && responsePostOrientacionSexual["Id"] != nil {
+					if responsePostOrientacionSexual["Status"] != 400 {
+						resultado = append(resultado, responsePostOrientacionSexual)
+					} else {
+						HayError = true
+						logs.Error("Error --> ", errResponsePostOrientacionSexual)
+						return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la orientación sexual")
+					}
+				} else {
+					HayError = true
+					logs.Error("Error --> ", errResponsePostOrientacionSexual)
+					return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la orientación sexual")
+				}
+			}
+
+		}
+
+		//Registro de identidad de genero
+		if !HayError {
+			if tercero["IdentidadGenero"] != nil {
+				// DATOS QUE VAN EL BODY DE LA PETICION A INFO_COMPLEMENTARIA_TERCERO
+				bodyInfoComplementariaTercero := map[string]interface{}{
+					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+					"InfoComplementariaId": map[string]interface{}{"Id": tercero["IdentidadGenero"].(map[string]interface{})["Id"].(float64)},
+					"Activo":               true,
+				}
+				// Esta variable guardara la respuesta del api en caso que sea correcta.
+				var responsePostIdentidadGenero map[string]interface{}
+				errResponsePostIdentidadGenero := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &responsePostIdentidadGenero, bodyInfoComplementariaTercero)
+				// Si la respuesta es correcta, se procede a validar si el estado civil fue guardado correctamente.
+				if errResponsePostIdentidadGenero == nil && fmt.Sprintf("%v", errResponsePostIdentidadGenero) != "map[]" && responsePostIdentidadGenero["Id"] != nil {
+					if responsePostIdentidadGenero["Status"] != 400 {
+						resultado = append(resultado, responsePostIdentidadGenero)
+					} else {
+						HayError = true
+						logs.Error("Error --> ", errResponsePostIdentidadGenero)
+						return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la identidad de genero")
+					}
+				} else {
+					HayError = true
+					logs.Error("Error --> ", errResponsePostIdentidadGenero)
+					return nil, errors.New("service sga_tercero_service: (GuardarDatosComplementarios) error al guardar la identidad de genero")
+				}
+			}
+		}
+
 	} else {
 		HayError = true
 		logs.Error("Error --> ", err)
 		return nil, errors.New("error del servicio GuardarDatosComplementarios: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 	}
 
-	if !HayError { // if all ok, pass response
-		resultado = append(resultado, LugarPut)
+	if !HayError {
 		return resultado, nil
-	} else { // Delete POSTed if error
+	} else {
+		// Si hay error se borra todo lo creado
 		for _, infoComp := range resultado {
 			var respDel map[string]interface{}
 			request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero/"+fmt.Sprintf("%v", infoComp["Id"]), "DELETE", &respDel, nil)
@@ -3357,35 +3456,60 @@ func AsignarCorreoInstitucional(data []byte) (interface{}, error) {
 			var updateTercero map[string]interface{}
 			errUpdtTercero := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), &updateTercero)
 			if errUpdtTercero == nil && updateTercero["Status"] != 404 {
-				updateTercero["UsuarioWSO2"] = info["Correo"]
+				// Verificar si ya tiene un correo institucional
+				if updateTercero["UsuarioWSO2"] == nil || updateTercero["UsuarioWSO2"] == "" {
+					updateTercero["UsuarioWSO2"] = info["Correo"]
 
-				var updateAnswer map[string]interface{}
-				errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), "PUT", &updateAnswer, updateTercero)
-				if errupdateAnswer == nil {
-					response = append(response, updateAnswer)
-					newInfo := map[string]interface{}{
-						"TerceroId":            map[string]interface{}{"Id": info["Id"]},
-						"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
-						"Dato":                 fmt.Sprintf("{\"value\": \"%v\"}", info["Correo"]),
-						"Activo":               true,
-					}
+					var updateAnswer map[string]interface{}
+					errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"tercero/"+fmt.Sprintf("%v", info["Id"]), "PUT", &updateAnswer, updateTercero)
+					if errupdateAnswer == nil {
+						response = append(response, updateAnswer)
+						newInfo := map[string]interface{}{
+							"TerceroId":            map[string]interface{}{"Id": info["Id"]},
+							"InfoComplementariaId": map[string]interface{}{"Id": ItCorreo},
+							"Dato":                 fmt.Sprintf("{\"value\": \"%v\"}", info["Correo"]),
+							"Activo":               true,
+						}
 
-					var createinfo map[string]interface{}
-					errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
-					if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
-						response = append(response, createinfo)
+						var createinfo map[string]interface{}
+						errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
+						if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
+							response = append(response, createinfo)
+						} else {
+							log.Error(errCreateInfo)
+							response = append(response, map[string]interface{}{
+								"Id":    info["Id"],
+								"Error": "Error al crear registro",
+							})
+						}
+
+						// Asignar rol "ESTUDIANTE"
+						roleInfo := map[string]interface{}{
+							"TerceroId": info["Id"],
+							"role":      "ESTUDIANTE",
+						}
+						var roleResponse map[string]interface{}
+						errRole := request.SendJson("http://"+beego.AppConfig.String("RolesService")+"roles", "POST", &roleResponse, roleInfo)
+						if errRole == nil {
+							response = append(response, roleResponse)
+						} else {
+							log.Error(errRole)
+							response = append(response, map[string]interface{}{
+								"Id":    info["Id"],
+								"Error": "Error al asignar rol",
+							})
+						}
 					} else {
-						log.Error(errCreateInfo)
+						log.Error(errupdateAnswer)
 						response = append(response, map[string]interface{}{
 							"Id":    info["Id"],
-							"Error": "Error al crear registro",
+							"Error": "Error al actualizar la información",
 						})
 					}
 				} else {
-					log.Error(errupdateAnswer)
 					response = append(response, map[string]interface{}{
 						"Id":    info["Id"],
-						"Error": "Error al actualizar la información",
+						"Error": "Correo institucional ya existe",
 					})
 				}
 			} else {
@@ -3401,5 +3525,4 @@ func AsignarCorreoInstitucional(data []byte) (interface{}, error) {
 		logs.Error("Error --> ", err)
 		return nil, errors.New("error del servicio AsignarCorreoInstitucional: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido" + err.Error())
 	}
-
 }

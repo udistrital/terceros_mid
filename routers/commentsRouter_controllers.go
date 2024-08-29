@@ -108,6 +108,15 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"] = append(beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"],
         beego.ControllerComments{
+            Method: "AsignarRolEstudiante",
+            Router: "/asignar-rol-estudiante",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"] = append(beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"],
+        beego.ControllerComments{
             Method: "GuardarAutor",
             Router: "/autores",
             AllowHTTPMethods: []string{"post"},
@@ -162,18 +171,18 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"] = append(beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"],
         beego.ControllerComments{
-            Method: "GuardarDatosAcudiente",
+            Method: "ConsultarDatosAcudiente",
             Router: "/datos-acudiente/:tercero_id",
-            AllowHTTPMethods: []string{"post"},
+            AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
     beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"] = append(beego.GlobalControllerRouter["github.com/udistrital/terceros_mid/controllers:SgaTercerosController"],
         beego.ControllerComments{
-            Method: "ConsultarDatosAcudiente",
+            Method: "GuardarDatosAcudiente",
             Router: "/datos-acudiente/:tercero_id",
-            AllowHTTPMethods: []string{"get"},
+            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
