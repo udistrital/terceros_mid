@@ -172,6 +172,24 @@ paths:
           description: '{int}'
         "400":
           description: the request contains incorrect syntax
+  /personas/asignar-rol-estudiante:
+    post:
+      tags:
+      - personas
+      description: Asignar Rol de Estudiante
+      operationId: SgaTercerosController.AsignarRolEstudiante
+      parameters:
+      - in: body
+        name: body
+        description: body for role assignment content Lista de ID Terceros y Correo
+        required: true
+        schema:
+          $ref: '#/definitions/{}'
+      responses:
+        "201":
+          description: '{int}'
+        "400":
+          description: the request contains incorrect syntax
   /personas/autores:
     post:
       tags:
