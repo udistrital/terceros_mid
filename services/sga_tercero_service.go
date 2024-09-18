@@ -2862,7 +2862,7 @@ func GuardarDatosAcudiente(idTercero string, data []byte) (interface{}, error) {
 
 							// Guardar en la base de datos
 							var apiResp map[string]interface{}
-							err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", newInfo, &apiResp)
+							err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &apiResp, newInfo)
 							if err != nil {
 								logs.Error("Error al enviar la solicitud a la API CRUD", err)
 								return nil, errors.New("error del servicio GuardarDatosAcudiente")
@@ -3013,7 +3013,7 @@ func ActualizarDatosAcudiente(idTercero string, data []byte) (interface{}, error
 
 											// Realiza la solicitud de actualización a la API
 											var apiResp map[string]interface{}
-											err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idPut), "PUT", updateInfo, &apiResp)
+											err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+strconv.Itoa(idPut), "PUT", &apiResp, updateInfo)
 											if err != nil {
 												logs.Error("Error al enviar la solicitud a la API CRUD", err)
 												return nil, errors.New("error del servicio ActualizarDatosAcudiente")
@@ -3304,7 +3304,7 @@ func CrearLocalidades(idTercero string, data []byte) (interface{}, error) {
 				"Activo":               true,
 			}
 			var apiResp map[string]interface{}
-			err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", updateInfo, &apiResp)
+			err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &apiResp, updateInfo)
 			if err != nil {
 				logs.Error("Error al enviar la solicitud a la API CRUD", err)
 				return nil, errors.New("error del servicio al crear las localidades")
@@ -3433,7 +3433,7 @@ func ActualizarInfoAcademicaAspirante(idTercero string, data []byte) (interface{
 
 			// Realiza la solicitud de actualización a la API
 			var apiResp map[string]interface{}
-			err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idSlice[i]), "PUT", updateInfo, &apiResp)
+			err := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+strconv.Itoa(idSlice[i]), "PUT", &apiResp, updateInfo)
 			if err != nil {
 				logs.Error("Error al enviar la solicitud a la API CRUD", err)
 				return nil, errors.New("error del servicio al actualizar las localidades")
