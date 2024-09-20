@@ -174,13 +174,29 @@ func GuardarPersona(data []byte) (interface{}, error) {
 							formatdata.JsonPrint(newInfo)
 							var createinfo map[string]interface{}
 							errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
-							if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
+							// GUARDAR DATO COMPLEMENTARIO GENERO
+							infoComplementariaGeneroId := tercero["Genero"].(map[string]interface{})["Id"]
+							generoRequest := map[string]interface{}{
+								"TerceroId":            TerceroId,
+								"InfoComplementariaId": map[string]interface{}{"Id": infoComplementariaGeneroId},
+								"Dato":                 "",
+								"Activo":               true,
+							}
+							var generoResponse map[string]interface{}
+							errGeneroRequest := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &generoResponse, generoRequest)
+							if errGeneroRequest != nil {
+
+								logs.Error("Error --> ", errGeneroRequest)
+								return nil, errors.New("error del servicio GuardarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+							}
+
+							if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil && generoResponse["Id"] != nil {
 								resultado = terceroPost
 								resultado["NumeroIdentificacion"] = identificacion["Numero"]
 								resultado["TipoIdentificacionId"] = identificacion["TipoDocumentoId"].(map[string]interface{})["Id"]
 								resultado["FechaExpedicion"] = identificacion["FechaExpedicion"]
 								resultado["TelefonoId"] = createinfo["Id"]
-
+								resultado["GeneroId"] = generoResponse["Id"]
 								return resultado, nil
 							}
 						} else {
