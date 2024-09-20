@@ -95,6 +95,37 @@ func ActualizarPersona(data []byte) (interface{}, error) {
 					response["telefono"] = createinfo
 				}
 			}
+
+			// GUARDAR DATO COMPLEMENTARIO GENERO
+			if body["Complementarios"].(map[string]interface{})["Genero"].(map[string]interface{})["hasId"] != nil {
+				idInfComp := body["Complementarios"].(map[string]interface{})["Genero"].(map[string]interface{})["hasId"].(float64)
+				var updateInfoComp map[string]interface{}
+				errUpdtInfoComp := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%v", idInfComp), &updateInfoComp)
+				if errUpdtInfoComp == nil && updateInfoComp["Status"] != 404 {
+					infoComplementariaGeneroId := body["Complementarios"].(map[string]interface{})["Genero"].(map[string]interface{})["data"].(map[string]interface{})["Id"]
+					updateInfoComp["InfoComplementariaId"] = map[string]interface{}{"Id": infoComplementariaGeneroId}
+					formatdata.JsonPrint(updateInfoComp)
+
+					var updateAnswer map[string]interface{}
+					errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idInfComp), "PUT", &updateAnswer, updateInfoComp)
+					if errupdateAnswer == nil {
+						response["genero"] = updateAnswer
+					}
+				}
+			} else {
+				infoComplementariaGeneroId := body["Complementarios"].(map[string]interface{})["Genero"].(map[string]interface{})["data"].(map[string]interface{})["Id"]
+				generoRequest := map[string]interface{}{
+					"TerceroId":            map[string]interface{}{"Id": idTercero},
+					"InfoComplementariaId": map[string]interface{}{"Id": infoComplementariaGeneroId},
+					"Dato":                 "",
+					"Activo":               true,
+				}
+				var generoResponse map[string]interface{}
+				errGeneroRequest := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &generoResponse, generoRequest)
+				if errGeneroRequest == nil {
+					response["Genero"] = generoResponse
+				}
+			}
 			return response, nil
 
 		} else {
@@ -174,13 +205,29 @@ func GuardarPersona(data []byte) (interface{}, error) {
 							formatdata.JsonPrint(newInfo)
 							var createinfo map[string]interface{}
 							errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
-							if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
+							// GUARDAR DATO COMPLEMENTARIO GENERO
+							infoComplementariaGeneroId := tercero["Genero"].(map[string]interface{})["Id"]
+							generoRequest := map[string]interface{}{
+								"TerceroId":            TerceroId,
+								"InfoComplementariaId": map[string]interface{}{"Id": infoComplementariaGeneroId},
+								"Dato":                 "",
+								"Activo":               true,
+							}
+							var generoResponse map[string]interface{}
+							errGeneroRequest := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &generoResponse, generoRequest)
+							if errGeneroRequest != nil {
+
+								logs.Error("Error --> ", errGeneroRequest)
+								return nil, errors.New("error del servicio GuardarPersona: La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+							}
+
+							if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil && generoResponse["Id"] != nil {
 								resultado = terceroPost
 								resultado["NumeroIdentificacion"] = identificacion["Numero"]
 								resultado["TipoIdentificacionId"] = identificacion["TipoDocumentoId"].(map[string]interface{})["Id"]
 								resultado["FechaExpedicion"] = identificacion["FechaExpedicion"]
 								resultado["TelefonoId"] = createinfo["Id"]
-
+								resultado["GeneroId"] = generoResponse["Id"]
 								return resultado, nil
 							}
 						} else {
