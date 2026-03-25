@@ -16,10 +16,10 @@ import (
 // al que se le podrían modificar los parámetros antes de
 // codificarlos para ser usados en URLs, por ejemplo:
 //
-//   limit := 10
-//   offset := 20
-//   params, err := PrepareBeegoQuery("",[],[],[],limit,offset)
-//   url := "http://host:puerto/v1/endpoint?" + params.Encode()
+//	limit := 10
+//	offset := 20
+//	params, err := PrepareBeegoQuery("",[],[],[],limit,offset)
+//	url := "http://host:puerto/v1/endpoint?" + params.Encode()
 //
 // Vease también: https://golang.cafe/blog/how-to-url-encode-string-in-golang-example.html
 func PrepareBeegoQuery(query string,
