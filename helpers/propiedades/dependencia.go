@@ -28,7 +28,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 	urlDependencia += "&query=TerceroPrincipalId%3A" + idTercero
 	if resp, err := request.GetJsonTest2(urlDependencia, &idDependencia); err == nil && resp == 200 {
 		if len(idDependencia) == 0 || len(idDependencia[0]) == 0 {
-			err := fmt.Errorf("No hay dependencias registradas con el id " + idTercero)
+			err := fmt.Errorf("no hay dependencias registradas con el id %s", idTercero)
 			logs.Error(err)
 			outputError = map[string]interface{}{
 				"funcion": "GetDependencia - request.GetJsonTest(urlDependencia, &idDependencia)",
@@ -60,7 +60,7 @@ func GetDependencia(idTercero string) (dependencia []map[string]interface{}, out
 		urlDependencias := "http://" + beego.AppConfig.String("OikosService") + "dependencia/" + fmt.Sprintf("%v", idDep) + "?limit=-1"
 		if resp, err := request.GetJsonTest2(urlDependencias, &temp); err == nil && resp == 200 {
 			if len(temp) == 0 {
-				err := fmt.Errorf("No hay dependencias registradas con el id " + fmt.Sprintf("%v", idDep))
+				err := fmt.Errorf("no hay dependencias registradas con el id %v", idDep)
 				logs.Error(err)
 				outputError = map[string]interface{}{
 					"funcion": "GetDependencia - request.GetJsonTest(urlDependencias, &Dependencias)",
