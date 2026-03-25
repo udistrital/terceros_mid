@@ -27,5 +27,3 @@ swagger/**
 !swagger/*.yml
 swagger.zip
 report.xml
-go.mod
-go.sum
