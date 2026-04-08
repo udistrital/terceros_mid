@@ -15,6 +15,667 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/personas/": {
+            "put": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Actualizar datos de persona",
+                "operationId": "SgaTercerosController.ActualizarPersona",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Actualizar datos de persona content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Guardar Persona",
+                "operationId": "SgaTercerosController.PostPersona",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Guardar Persona content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/asignar-correo-institucional": {
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Asignar Correo Institucional",
+                "operationId": "SgaTercerosController.AsignarCorreoInstitucional",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Correo Institucional content Lista de ID Terceros y Correo",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/asignar-rol-estudiante": {
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Asignar Rol de Estudiante",
+                "operationId": "SgaTercerosController.AsignarRolEstudiante",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for role assignment content Lista de ID Terceros y Correo",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/autores": {
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Guardar autor",
+                "operationId": "SgaTercerosController.PostAutor",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Guardar autor content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/complementarios": {
+            "put": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "ActualizarDatosComplementarios",
+                "operationId": "SgaTercerosController.ActualizarDatosComplementarios",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Actualizar los datos complementarios content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Guardar Datos Complementarios Persona",
+                "operationId": "SgaTercerosController.GuardarDatosComplementarios",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Guardar Datos Complementarios Persona content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/complementarios-par-academico": {
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Guardar Datos Complementarios Persona ParAcademico",
+                "operationId": "SgaTercerosController.GuardarDatosComplementariosParAcademico",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Guardar Datos Complementarios Persona content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/contacto": {
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Guardar DatosContacto",
+                "operationId": "SgaTercerosController.PostrDatosContacto",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Guardar DatosContacto content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/personas/datos-acudiente/{tercero_id}": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "ConsultarDatosAcudiente",
+                "operationId": "SgaTercerosController.ConsultarDatosAcudiente",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "ActualizarDatosAcudiente",
+                "operationId": "SgaTercerosController.ActualizarDatosAcudiente",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "GuardarDatosAcudiente",
+                "operationId": "SgaTercerosController.GuardarDatosAcudiente",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/existencia/{numeroDocumento}": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarExistenciaPersona by NumeroIdentificacion",
+                "operationId": "SgaTercerosController.ConsultarExistenciaPersona",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "numeroDocumento",
+                        "description": "numero documento del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/info-familiar": {
+            "put": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Actualiza la informacion familiar del tercero",
+                "operationId": "SgaTercerosController.ActualizarInfoFamiliar",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Actualizar la info familiar del tercero content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/personas/localidades": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarLocalidades",
+                "operationId": "SgaTercerosController.ConsultarLocalidades",
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/localidades/{tercero_id}": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "ConsultarInfoAcademicaAspirante",
+                "operationId": "SgaTercerosController.ConsultarInfoAcademicaAspirante",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "ActualizarInfoAcademicaAspirante",
+                "operationId": "SgaTercerosController.ActualizarInfoAcademicaAspirante",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Actualizar la info academica del aspirante content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "CrearLocalidades",
+                "operationId": "SgaTercerosController.CrearLocalidades",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for CrearLocalidades content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/personas/nit": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "Retorna una lista de terceros con su NIT y nombre completo.",
+                "operationId": "SgaTercerosController.ObtenerTerceroConNIT",
+                "responses": {
+                    "200": {
+                        "description": "\"Lista de terceros con NIT, nombre completo y label correspondiente.\"",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/TerceroConNIT"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "\"bad request\" en caso de una solicitud incorrecta o problemas en la consulta."
+                    }
+                }
+            }
+        },
+        "/personas/{tercero_id}": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultaPersona by id",
+                "operationId": "SgaTercerosController.ConsultarPersona",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/{tercero_id}/complementarios": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarDatosComplementarios by id",
+                "operationId": "SgaTercerosController.ConsultarDatosComplementarios",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del ente",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/{tercero_id}/contacto": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarDatosContacto by id",
+                "operationId": "SgaTercerosController.ConsultarDatosContacto",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del Tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/{tercero_id}/familiar": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarDatosFamiliar by id",
+                "operationId": "SgaTercerosController.ConsultarDatosFamiliar",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del Tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/{tercero_id}/formacion-pregrado": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarDatosFormacionPregrado by id",
+                "operationId": "SgaTercerosController.ConsultarDatosFormacionPregrado",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del Tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/personas/{tercero_id}/info-solicitante": {
+            "get": {
+                "tags": [
+                    "personas"
+                ],
+                "description": "get ConsultarInfoSolicitante by id",
+                "operationId": "SgaTercerosController.ConsultarInfoSolicitante",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "tercero_id",
+                        "description": "Id del tercero",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
         "/propiedad/": {
             "get": {
                 "tags": [
@@ -198,8 +859,16 @@
         }
     },
     "definitions": {
+        "TerceroConNIT": {
+            "title": "TerceroConNIT",
+            "type": "object"
+        },
         "map[string]interface{}": {
             "title": "map[string]interface{}",
+            "type": "object"
+        },
+        "{}": {
+            "title": "{}",
             "type": "object"
         }
     },
@@ -211,6 +880,10 @@
         {
             "name": "propiedad",
             "description": "PropiedadesController operations for propiedades\n"
+        },
+        {
+            "name": "personas",
+            "description": "SgaTercerosController operations for Tercero\n"
         }
     ]
 }
