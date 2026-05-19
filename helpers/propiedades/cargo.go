@@ -29,7 +29,7 @@ func GetCargo(idTercero string) (cargo []map[string]interface{}, outputError map
 
 	if resp, err := request.GetJsonTest(urlVinculacion, &idCargo); err == nil && resp.StatusCode == 200 {
 		if len(idCargo) == 0 || len(idCargo[0]) == 0 {
-			err := fmt.Errorf("El tercero" + idTercero + "No tiene una vinculación activa")
+			err := fmt.Errorf("el tercero %s no tiene una vinculación activa", idTercero)
 			logs.Error(err)
 			outputError = map[string]interface{}{
 				"funcion": "GetCargo - request.GetJsonTest(urlVinculacion, &idCargo)",
@@ -59,7 +59,7 @@ func GetCargo(idTercero string) (cargo []map[string]interface{}, outputError map
 	urlParametro := "http://" + beego.AppConfig.String("ParametroService") + "parametro/" + fmt.Sprintf("%v", idCargo[0]["CargoId"])
 	if resp, err := request.GetJsonTest(urlParametro, &parametro); err == nil && resp.StatusCode == 200 {
 		if len(parametro) == 0 {
-			err := fmt.Errorf("No existe el parametro con el id " + fmt.Sprintf("%v", idCargo[0]["CargoId"]))
+			err := fmt.Errorf("no existe el parametro con el id %v", idCargo[0]["CargoId"])
 			logs.Error(err)
 			outputError = map[string]interface{}{
 				"funcion": "GetCargo - request.GetJsonTest(urlParametro, &parametro)",
