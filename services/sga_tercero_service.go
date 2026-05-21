@@ -11,7 +11,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/prometheus/common/log"
 
-	// "github.com/udistrital/terceros_mid/helpers"
+	"github.com/udistrital/terceros_mid/helpers"
 	"github.com/udistrital/terceros_mid/models"
 	"github.com/udistrital/utils_oas/formatdata"
 	"github.com/udistrital/utils_oas/request"
@@ -345,6 +345,7 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
 				"InfoComplementariaId": map[string]interface{}{"Id": poblacion.(map[string]interface{})["Id"].(float64)},
 				"Activo":               true,
+				"Dato":                 `{"value":` + fmt.Sprintf("%v", tercero["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
 			}
 			err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", nuevaPoblacion, "TipoPoblacion")
 			if err != nil {
@@ -354,20 +355,26 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 		}
 
 		if tercero["ComprobantePoblacion"] != nil && !HayError && tercero["ComprobantePoblacion"] != "" {
-			if comprobantePoblacionMap, ok := tercero["ComprobantePoblacion"].(map[string]interface{}); ok {
-				comprobantePoblacion := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-					"InfoComplementariaId": map[string]interface{}{"Id": 315},
-					"Activo":               true,
-					"Dato":                 `{"value":` + fmt.Sprintf("%v", comprobantePoblacionMap["Id"]) + `}`,
-				}
-				err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", comprobantePoblacion, "ComprobantePoblacion")
-				if err != nil {
-					HayError = true
-				}
-			} else {
+			poblacion_info_complementaria, errDoc := helpers.ObtenerInfoComplementariaId("DOC_POBLACION")
+			if errDoc != nil {
+				logs.Error(errDoc)
 				HayError = true
-				logs.Error("Error: ComprobantePoblacion no es del tipo map[string]interface{}")
+			} else {
+				if comprobantePoblacionMap, ok := tercero["ComprobantePoblacion"].(map[string]interface{}); ok {
+					comprobantePoblacion := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+						"InfoComplementariaId": map[string]interface{}{"Id": poblacion_info_complementaria},
+						"Activo":               true,
+						"Dato":                 `{"value":` + fmt.Sprintf("%v", comprobantePoblacionMap["Id"]) + `}`,
+					}
+					err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", comprobantePoblacion, "ComprobantePoblacion")
+					if err != nil {
+						HayError = true
+					}
+				} else {
+					HayError = true
+					logs.Error("Error: ComprobantePoblacion no es del tipo map[string]interface{}")
+				}
 			}
 		}
 	}
@@ -398,20 +405,26 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 		}
 
 		if tercero["ComprobanteDiscapacidad"] != nil && !HayError && tercero["ComprobanteDiscapacidad"] != "" {
-			if comprobanteDiscapacidadMap, ok := tercero["ComprobanteDiscapacidad"].(map[string]interface{}); ok {
-				comprobanteDiscapacidad := map[string]interface{}{
-					"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-					"InfoComplementariaId": map[string]interface{}{"Id": 310},
-					"Activo":               true,
-					"Dato":                 `{"value":` + fmt.Sprintf("%v", comprobanteDiscapacidadMap["Id"]) + `}`,
-				}
-				err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", comprobanteDiscapacidad, "ComprobanteDiscapacidad")
-				if err != nil {
-					HayError = true
-				}
-			} else {
+			discapacidad_info_complementaria, errDoc := helpers.ObtenerInfoComplementariaId("DOC_DISCAPACIDAD")
+			if errDoc != nil {
 				HayError = true
-				logs.Error("Error: ComprobanteDiscapacidad no es del tipo map[string]interface{}")
+				logs.Error(errDoc)
+			} else {
+				if comprobanteDiscapacidadMap, ok := tercero["ComprobanteDiscapacidad"].(map[string]interface{}); ok {
+					comprobanteDiscapacidad := map[string]interface{}{
+						"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+						"InfoComplementariaId": map[string]interface{}{"Id": discapacidad_info_complementaria},
+						"Activo":               true,
+						"Dato":                 `{"value":` + fmt.Sprintf("%v", comprobanteDiscapacidadMap["Id"]) + `}`,
+					}
+					err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", comprobanteDiscapacidad, "ComprobanteDiscapacidad")
+					if err != nil {
+						HayError = true
+					}
+				} else {
+					HayError = true
+					logs.Error("Error: ComprobanteDiscapacidad no es del tipo map[string]interface{}")
+				}
 			}
 		}
 	}
@@ -450,15 +463,21 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 
 	// Registro de Número de hermanos
 	if tercero["NumeroHermanos"] != nil && !HayError {
-		nuevoNumeroHermanos := map[string]interface{}{
-			"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
-			"InfoComplementariaId": map[string]interface{}{"Id": 319},
-			"Activo":               true,
-			"Dato":                 fmt.Sprintf("%v", tercero["NumeroHermanos"]),
-		}
-		err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", nuevoNumeroHermanos, "NumeroHermanos")
-		if err != nil {
-			HayError = true
+		hermanos_info_complementaria, errDoc := helpers.ObtenerInfoComplementariaId("NUMERO_HERMANOS")
+		if errDoc != nil {
+			HayError = false
+			logs.Error(errDoc)
+		} else {
+			nuevoNumeroHermanos := map[string]interface{}{
+				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
+				"InfoComplementariaId": map[string]interface{}{"Id": hermanos_info_complementaria},
+				"Activo":               true,
+				"Dato":                 fmt.Sprintf("%v", tercero["NumeroHermanos"]),
+			}
+			err := realizarSolicitud("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", nuevoNumeroHermanos, "NumeroHermanos")
+			if err != nil {
+				HayError = true
+			}
 		}
 	}
 
@@ -701,11 +720,21 @@ func ActualizarDatosComplementarios(data []byte) (interface{}, error) {
 					}
 				}
 				if OkInactive1 {
+					var nuevaPoblacion map[string]interface{}
 					for _, poblaciones := range poblacion {
-						nuevaPoblacion := map[string]interface{}{
-							"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
-							"InfoComplementariaId": map[string]interface{}{"Id": poblaciones.(map[string]interface{})["Id"].(float64)},
-							"Activo":               true,
+						if fmt.Sprintf("%v", reflect.TypeOf(persona["ComprobantePoblacion"])) == "map[string]interface {}" {
+							nuevaPoblacion = map[string]interface{}{
+								"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
+								"InfoComplementariaId": map[string]interface{}{"Id": poblaciones.(map[string]interface{})["Id"].(float64)},
+								"Activo":               true,
+								"Dato":                 `{"value":` + fmt.Sprintf("%v", persona["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
+							}
+						} else {
+							nuevaPoblacion = map[string]interface{}{
+								"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
+								"InfoComplementariaId": map[string]interface{}{"Id": poblaciones.(map[string]interface{})["Id"].(float64)},
+								"Activo":               true,
+							}
 						}
 
 						errPoblacionPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &Poblacion, nuevaPoblacion)
@@ -723,24 +752,29 @@ func ActualizarDatosComplementarios(data []byte) (interface{}, error) {
 					}
 
 					if fmt.Sprintf("%v", reflect.TypeOf(persona["ComprobantePoblacion"])) == "map[string]interface {}" {
-						comprobantePoblacion := map[string]interface{}{
-							"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
-							"InfoComplementariaId": map[string]interface{}{"Id": 315},
-							"Activo":               true,
-							"Dato":                 `{"value":` + fmt.Sprintf("%v", persona["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
-						}
-						errPoblacionPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &Poblacion, comprobantePoblacion)
+						doc_poblacion_info_complementaria, errDoc := helpers.ObtenerInfoComplementariaId("DOC_POBLACION")
+						if errDoc != nil {
+							logs.Error(errDoc)
+						} else {
+							comprobantePoblacion := map[string]interface{}{
+								"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
+								"InfoComplementariaId": map[string]interface{}{"Id": doc_poblacion_info_complementaria},
+								"Activo":               true,
+								"Dato":                 `{"value":` + fmt.Sprintf("%v", persona["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
+							}
+							errPoblacionPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &Poblacion, comprobantePoblacion)
 
-						if errPoblacionPost == nil && fmt.Sprintf("%v", Poblacion) != "map[]" && Poblacion["Id"] != nil {
-							if Poblacion["Status"] != 400 {
+							if errPoblacionPost == nil && fmt.Sprintf("%v", Poblacion) != "map[]" && Poblacion["Id"] != nil {
+								if Poblacion["Status"] != 400 {
 
+								} else {
+									logs.Error("Error --> ", errPoblacionPost)
+									return nil, errors.New("error del servicio ActualizarDatosComplementarios: [errPoblacionPost] La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+								}
 							} else {
 								logs.Error("Error --> ", errPoblacionPost)
 								return nil, errors.New("error del servicio ActualizarDatosComplementarios: [errPoblacionPost] La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 							}
-						} else {
-							logs.Error("Error --> ", errPoblacionPost)
-							return nil, errors.New("error del servicio ActualizarDatosComplementarios: [errPoblacionPost] La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 						}
 					}
 				}
@@ -793,11 +827,21 @@ func ActualizarDatosComplementarios(data []byte) (interface{}, error) {
 					}
 				}
 				if OkInactive2 {
+					var nuevadiscapacidad map[string]interface{}
 					for _, discapacidades := range discapacidad {
-						nuevadiscapacidad := map[string]interface{}{
-							"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
-							"InfoComplementariaId": map[string]interface{}{"Id": discapacidades.(map[string]interface{})["Id"].(float64)},
-							"Activo":               true,
+						if fmt.Sprintf("%v", reflect.TypeOf(persona["ComprobanteDiscapacidad"])) == "map[string]interface {}" {
+							nuevadiscapacidad = map[string]interface{}{
+								"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
+								"InfoComplementariaId": map[string]interface{}{"Id": discapacidades.(map[string]interface{})["Id"].(float64)},
+								"Activo":               true,
+								"Dato":                 `{"value":` + fmt.Sprintf("%v", persona["ComprobanteDiscapacidad"].(map[string]interface{})["Id"]) + `}`,
+							}
+						} else {
+							nuevadiscapacidad = map[string]interface{}{
+								"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
+								"InfoComplementariaId": map[string]interface{}{"Id": discapacidades.(map[string]interface{})["Id"].(float64)},
+								"Activo":               true,
+							}
 						}
 
 						errDiscapacidadPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &Discapacidad, nuevadiscapacidad)
@@ -815,24 +859,29 @@ func ActualizarDatosComplementarios(data []byte) (interface{}, error) {
 					}
 
 					if fmt.Sprintf("%v", reflect.TypeOf(persona["ComprobanteDiscapacidad"])) == "map[string]interface {}" {
-						comprobanteDiscapacidad := map[string]interface{}{
-							"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
-							"InfoComplementariaId": map[string]interface{}{"Id": 310},
-							"Activo":               true,
-							"Dato":                 `{"value":` + fmt.Sprintf("%v", persona["ComprobanteDiscapacidad"].(map[string]interface{})["Id"]) + `}`,
-						}
-						errDiscapacidadPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &Discapacidad, comprobanteDiscapacidad)
+						discapacidad_info_complementaria, errDoc := helpers.ObtenerInfoComplementariaId("DOC_DISCAPACIDAD")
+						if errDoc != nil {
+							logs.Error(errDoc)
+						} else {
+							comprobanteDiscapacidad := map[string]interface{}{
+								"TerceroId":            map[string]interface{}{"Id": idPersona.(float64)},
+								"InfoComplementariaId": map[string]interface{}{"Id": discapacidad_info_complementaria},
+								"Activo":               true,
+								"Dato":                 `{"value":` + fmt.Sprintf("%v", persona["ComprobanteDiscapacidad"].(map[string]interface{})["Id"]) + `}`,
+							}
+							errDiscapacidadPost := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", &Discapacidad, comprobanteDiscapacidad)
 
-						if errDiscapacidadPost == nil && fmt.Sprintf("%v", Discapacidad) != "map[]" && Discapacidad["Id"] != nil {
-							if Discapacidad["Status"] != 400 {
+							if errDiscapacidadPost == nil && fmt.Sprintf("%v", Discapacidad) != "map[]" && Discapacidad["Id"] != nil {
+								if Discapacidad["Status"] != 400 {
 
+								} else {
+									logs.Error("Error --> ", errDiscapacidadPost)
+									return nil, errors.New("error del servicio ActualizarDatosComplementarios: [errDiscapacidadPost] La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
+								}
 							} else {
 								logs.Error("Error --> ", errDiscapacidadPost)
 								return nil, errors.New("error del servicio ActualizarDatosComplementarios: [errDiscapacidadPost] La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 							}
-						} else {
-							logs.Error("Error --> ", errDiscapacidadPost)
-							return nil, errors.New("error del servicio ActualizarDatosComplementarios: [errDiscapacidadPost] La solicitud contiene un tipo de dato incorrecto o un parámetro inválido")
 						}
 					}
 				}
