@@ -462,7 +462,7 @@ func (c *SgaTercerosController) ObtenerTercerosConNIT() {
 
 	var tercerosConNIT []map[string]interface{}
 	//Consultar terceros con nit
-	errTerceroConNIT := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+queryUrl, &tercerosConNIT)
+	errTerceroConNIT := request.GetJson(beego.AppConfig.String("TercerosService")+queryUrl, &tercerosConNIT)
 	if errTerceroConNIT == nil {
 		if tercerosConNIT != nil && len(tercerosConNIT) > 0 {
 			type TerceroConNIT struct {

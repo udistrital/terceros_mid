@@ -16,13 +16,13 @@ func UpdateOrCreateInfoComplementaria(tipoInfo string, infoComp map[string]inter
 	if infoComp[tipoInfo].(map[string]interface{})["hasId"] != nil {
 		idInfComp := infoComp[tipoInfo].(map[string]interface{})["hasId"].(float64)
 		var updateInfoComp map[string]interface{}
-		errUpdtInfoComp := request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%v", idInfComp), &updateInfoComp)
+		errUpdtInfoComp := request.GetJson(beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%v", idInfComp), &updateInfoComp)
 		if errUpdtInfoComp == nil && updateInfoComp["Status"] != 404 {
 			dataToUpdate := infoComp[tipoInfo].(map[string]interface{})["data"].(map[string]interface{})
 			updateInfoComp["InfoComplementariaId"] = dataToUpdate
 
 			var updateAnswer map[string]interface{}
-			errupdateAnswer := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idInfComp), "PUT", &updateAnswer, updateInfoComp)
+			errupdateAnswer := request.SendJson(beego.AppConfig.String("TercerosService")+"info_complementaria_tercero/"+fmt.Sprintf("%.f", idInfComp), "PUT", &updateAnswer, updateInfoComp)
 			if errupdateAnswer == nil {
 				resp = updateAnswer
 				ok = true
@@ -35,7 +35,7 @@ func UpdateOrCreateInfoComplementaria(tipoInfo string, infoComp map[string]inter
 			"Activo":               true,
 		}
 		var createinfo map[string]interface{}
-		errCreateInfo := request.SendJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
+		errCreateInfo := request.SendJson(beego.AppConfig.String("TercerosService")+"info_complementaria_tercero", "POST", &createinfo, newInfo)
 		if errCreateInfo == nil && fmt.Sprintf("%v", createinfo) != "map[]" && createinfo["Id"] != nil {
 			resp = createinfo
 			ok = true
@@ -53,7 +53,7 @@ func ObtenerInfoComplementariaId(codigo string) (float64, error) {
 	// varios intentos para obtener el dato
 	for intento := 1; intento <= 2; intento++ {
 
-		errTipo = request.GetJson("http://"+beego.AppConfig.String("TercerosService")+"info_complementaria?query=Activo:true,CodigoAbreviacion:"+codigo, &infoComp)
+		errTipo = request.GetJson(beego.AppConfig.String("TercerosService")+"info_complementaria?query=Activo:true,CodigoAbreviacion:"+codigo, &infoComp)
 
 		if errTipo != nil {
 			logs.Error("Error consultando ", codigo, ": ", errTipo)

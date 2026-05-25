@@ -43,7 +43,7 @@ func GetFuncionariosPlanta(idTercero int, query string) (terceros []map[string]i
 	parametroPlantaID := make(map[string]int)
 
 	var respBody models.RespuestaAPI1Arr
-	urlParametros := "http://" + beego.AppConfig.String("ParametroService") + "parametro?limit=-1"
+	urlParametros := beego.AppConfig.String("ParametroService") + "parametro?limit=-1"
 	urlParametros += "&fields=Id,CodigoAbreviacion"
 	urlParametros += "&query=Activo:true,TipoParametroId__Activo:true,TipoParametroId__CodigoAbreviacion:" + CodigoTipoParamVinculacion
 	// fmt.Println(urlParametros)
@@ -84,7 +84,7 @@ func GetFuncionariosPlanta(idTercero int, query string) (terceros []map[string]i
 	for _, paramID := range parametroPlantaID {
 
 		var vinculaciones []models.Vinculacion
-		urlTerceros := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
+		urlTerceros := beego.AppConfig.String("TercerosService") + "vinculacion?limit=-1"
 		urlTerceros += "&fields=Id,TerceroPrincipalId,TipoVinculacionId,DependenciaId"
 		urlTerceros += "&query=Activo:true,TipoVinculacionId:" + fmt.Sprint(paramID)
 		if idTercero > 0 {
@@ -148,7 +148,7 @@ func GetFuncionariosPlanta(idTercero int, query string) (terceros []map[string]i
 		if consultar {
 
 			var resBody []models.AsignacionEspacioFisicoDependencia
-			urlOikos := "http://" + beego.AppConfig.String("OikosService") + "asignacion_espacio_fisico_dependencia?limit=-1"
+			urlOikos := beego.AppConfig.String("OikosService") + "asignacion_espacio_fisico_dependencia?limit=-1"
 			urlOikos += "&fields=Id,EspacioFisicoId,DependenciaId&query=Activo:true"
 			// urlOikos += ",EspacioFisicoId__TipoEspacioFisicoId__Nombre:SEDE"
 			urlOikos += ",EspacioFisicoId__TipoEspacioFisicoId__CodigoAbreviacion:Tipo_1"
