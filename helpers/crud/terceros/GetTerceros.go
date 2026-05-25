@@ -20,7 +20,7 @@ func GetTerceros(terceros *[]models.Tercero, query string,
 	const funcion = "GetTerceros - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlTerceros := "http://" + beego.AppConfig.String("TercerosService") + "tercero?"
+	urlTerceros := beego.AppConfig.String("TercerosService") + "tercero?"
 	params, err := utils.PrepareBeegoQuery(query, fields, sortby, order, limit, offset)
 	if err != nil {
 		return err
