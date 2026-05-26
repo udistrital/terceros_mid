@@ -19,7 +19,7 @@ func GetAllDatosIdentificacionVinculacion(documentos *[]map[string]interface{}, 
 	const funcion = "GetAllDatosIdentificacionVinculacion - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlcrud := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion/identificacion?" +
+	urlcrud := beego.AppConfig.String("tercerosService") + "vinculacion/identificacion?" +
 		"query=" + url.QueryEscape(query) + "&vinculaciones=" + vinculaciones
 
 	var data interface{}

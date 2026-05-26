@@ -22,7 +22,7 @@ func GetVinculaciones(vinculaciones *[]models.Vinculacion, query string,
 	const funcion = "GetVinculaciones - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlVinculaciones := "http://" + beego.AppConfig.String("TercerosService") + "vinculacion?"
+	urlVinculaciones := beego.AppConfig.String("TercerosService") + "vinculacion?"
 	params, err := utils.PrepareBeegoQuery(query, fields, sortby, order, limit, offset)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func GetTrVinculacionIdentificacion(compuesto, vinculaciones, cargos, dependenci
 	const funcion = "GetVinculaciones - "
 	defer e.ErrorControlFunction(funcion+"unhandled error!", fmt.Sprint(http.StatusInternalServerError))
 
-	urlTrVinculaciones := "http://" + beego.AppConfig.String("tercerosService") + "vinculacion/identificacion?"
+	urlTrVinculaciones := beego.AppConfig.String("tercerosService") + "vinculacion/identificacion?"
 
 	parametros := []string{}
 	if compuesto != "" {
