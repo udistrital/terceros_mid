@@ -345,7 +345,6 @@ func GuardarDatosComplementarios(data []byte) (interface{}, error) {
 				"TerceroId":            map[string]interface{}{"Id": tercero["Tercero"].(float64)},
 				"InfoComplementariaId": map[string]interface{}{"Id": poblacion.(map[string]interface{})["Id"].(float64)},
 				"Activo":               true,
-				"Dato":                 `{"value":` + fmt.Sprintf("%v", tercero["ComprobantePoblacion"].(map[string]interface{})["Id"]) + `}`,
 			}
 			err := realizarSolicitud(beego.AppConfig.String("TercerosService")+"/info_complementaria_tercero", "POST", nuevaPoblacion, "TipoPoblacion")
 			if err != nil {
