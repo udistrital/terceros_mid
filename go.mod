@@ -10,7 +10,7 @@ require (
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/udistrital/parametros_crud v0.0.1
 	github.com/udistrital/terceros_crud v0.0.0-20260415044426-8c8be317675d
-	github.com/udistrital/utils_oas v0.5.0-beta.10
+	github.com/udistrital/utils_oas v0.5.0-beta.11
 )
 
 require (

@@ -395,8 +395,8 @@ github.com/udistrital/parametros_crud v0.0.1 h1:i0AzmG9Dp4gekdPQAIoiB0BUX0ExBo4n
 github.com/udistrital/parametros_crud v0.0.1/go.mod h1:ae/alo0HYhBOXz8e3C01EX/1ujFhxIoHpM6u7BUzvlw=
 github.com/udistrital/terceros_crud v0.0.0-20260415044426-8c8be317675d h1:NM6It/2MhD7BlUZtfd76LDrhxaxeMUG1wuK23xlmhPk=
 github.com/udistrital/terceros_crud v0.0.0-20260415044426-8c8be317675d/go.mod h1:VVYeKUxa2SpY1Le1Cu9wI2HnV5k34r93z4qnOq7cfr0=
-github.com/udistrital/utils_oas v0.5.0-beta.10 h1:DTb/tU591hT2kGgpHJYhgTApkMQH2VLkFV9XsOXlTPs=
-github.com/udistrital/utils_oas v0.5.0-beta.10/go.mod h1:bsE3CM5Q3iIudhp6+bbL32f++dvfRYd9nFKCEsbbWVY=
+github.com/udistrital/utils_oas v0.5.0-beta.11 h1:mGdEcErc1qCkWoFltjoxqKNUSTl1x+ZgEgotyvDUsEI=
+github.com/udistrital/utils_oas v0.5.0-beta.11/go.mod h1:bsE3CM5Q3iIudhp6+bbL32f++dvfRYd9nFKCEsbbWVY=
 github.com/ugorji/go v0.0.0-20171122102828-84cb69a8af83/go.mod h1:hnLbHMwcvSihnDhEfx2/BzKp2xb0Y+ErdfYcrs9tkJQ=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
