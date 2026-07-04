@@ -6,7 +6,7 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/beego/beego v1.12.14
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/prometheus/common v0.21.0
+	github.com/prometheus/common v0.26.0
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/udistrital/parametros_crud v0.0.1
 	github.com/udistrital/terceros_crud v0.0.0-20260415044426-8c8be317675d
@@ -47,7 +47,7 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_golang v1.10.0 // indirect
+	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18 // indirect
